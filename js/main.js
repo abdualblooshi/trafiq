@@ -5,6 +5,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const scrollManager = new ScrollManager(visualization);
   const sidebar = new Sidebar(dataManager);
 
+  // Set up filter change callback
+  sidebar.setFilterChangeCallback((filters) => {
+    visualization.updateWithFilters(filters);
+  });
+
   await visualization.initialize();
   scrollManager.initialize();
 });
