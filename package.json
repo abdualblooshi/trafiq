@@ -4,6 +4,8 @@
   "description": "🚗 TrafiQ is an interactive web application designed to visualize and analyze traffic incidents in Dubai. It features dynamic maps, real-time insights, and customizable accessibility settings to help users explore patterns and trends in traffic data effectively.",
   "main": "server/server.js",
   "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
     "copy-vendor": "mkdir -p public/vendor && npm run copy-mapbox && npm run copy-d3 && npm run copy-scrollama && npm run copy-vega && npm run copy-fa",
     "copy-mapbox": "cp -r node_modules/mapbox-gl/dist/* public/vendor/mapbox-gl/",
     "copy-d3": "cp node_modules/d3/dist/d3.min.js public/vendor/d3/",
