@@ -1,15 +1,16 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  const canvas = document.getElementById("visualization-canvas");
-  const dataManager = new DataManager();
-  const visualization = new Visualization(canvas, dataManager);
-  const scrollManager = new ScrollManager(visualization);
-  const sidebar = new Sidebar(dataManager);
+  try {
+    const dataManager = new DataManager();
+    await dataManager.loadData();
 
-  // Set up filter change callback
-  sidebar.setFilterChangeCallback((filters) => {
-    visualization.updateWithFilters(filters);
-  });
+    const scrollManager = new ScrollManager(dataManager);
+    await scrollManager.initialize();
 
-  await visualization.initialize();
-  scrollManager.initialize();
+    const accessibilityManager = new AccessibilityManager(
+      dataManager,
+      scrollManager
+    );
+  } catch (error) {
+    console.error("Initialization error:", error);
+  }
 });
