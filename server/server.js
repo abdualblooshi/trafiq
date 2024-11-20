@@ -11,12 +11,6 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Add this after your other middleware and before routes
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  next();
-});
-
 // Explicitly set MIME types
 app.use("/", (req, res, next) => {
   const ext = path.extname(req.url).toLowerCase();
@@ -112,6 +106,16 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/index.html"));
 });
 
+// Mapbox token endpoint
+app.get("/mapbox-token", (req, res) => {
+  const mapboxToken = process.env.MAPBOX_ACCESS_TOKEN;
+  if (!mapboxToken) {
+    console.error("Mapbox token not found in environment variables");
+    return res.status(500).json({ error: "Mapbox token not configured" });
+  }
+  res.json({ token: mapboxToken });
+});
+
 // API endpoints
 app.get("/api/incidents", async (req, res) => {
   try {
@@ -136,20 +140,12 @@ app.use((err, req, res, next) => {
   res.status(500).send("Server error");
 });
 
-// Add this before your error handler
-app.use("/css/*", (req, res, next) => {
-  const filePath = path.join(__dirname, "../public", req.url);
-  console.log("Attempting to serve CSS file:", filePath);
-  if (!fs.existsSync(filePath)) {
-    console.log("File not found:", filePath);
-    return res.status(404).send("CSS file not found");
-  }
-  next();
-});
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  // Log the directory structure for debugging
-  console.log("Public directory:", path.join(__dirname, "../public"));
-  console.log("Vendor directory:", path.join(__dirname, "../public/vendor"));
+  // Log environment check
+  if (!process.env.MAPBOX_ACCESS_TOKEN) {
+    console.warn("⚠️ MAPBOX_ACCESS_TOKEN not found in environment variables");
+  } else {
+    console.log("✅ MAPBOX_ACCESS_TOKEN configured");
+  }
 });
