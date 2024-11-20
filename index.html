@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Traffic Incidents Story</title>
+    <link rel="stylesheet" href="css/styles.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/scrollama"></script>
@@ -13,87 +14,6 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
-    <style>
-      .sidebar {
-        height: 100vh;
-        overflow-y: auto;
-      }
-
-      #story-container {
-        position: relative;
-        padding: 1rem;
-      }
-
-      .story-graphic {
-        position: sticky;
-        top: 0;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #000;
-        transition: background 0.5s ease;
-      }
-
-      .story-graphic canvas {
-        position: absolute;
-        top: 0;
-        left: 0;
-      }
-
-      .story-sections {
-        position: relative;
-        padding: 0;
-      }
-
-      .story-step {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        opacity: 0.2;
-        transition: opacity 0.5s ease;
-      }
-
-      .story-step.is-active {
-        opacity: 1;
-      }
-
-      .story-step-content {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 1rem;
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-
-      .dropdown-content {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease-out;
-      }
-
-      .dropdown-content.show {
-        max-height: 500px;
-      }
-
-      /* Animation classes */
-      .fade-in {
-        opacity: 0;
-        transition: opacity 1s ease-in;
-      }
-
-      .fade-in.visible {
-        opacity: 1;
-      }
-
-      .particle {
-        position: absolute;
-        background: #fff;
-        border-radius: 50%;
-        transition: all 0.5s ease;
-      }
-    </style>
   </head>
   <body class="bg-black text-white">
     <div class="flex">
