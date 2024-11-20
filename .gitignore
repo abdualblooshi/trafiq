@@ -1,0 +1,87 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.pnpm-debug.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# Build output
+dist/
+build/
+public/vendor/*
+!public/vendor/.gitkeep
+public/css/*
+!public/css/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor directories and files
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.sublime-workspace
+*.sublime-project
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+debug.log
+
+# Test coverage
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+.temp/
+.cache/
+
+# Local development files
+*.local
+
+# System Files
+.directory
+.fuse_hidden*
+.Trash-*
+.nfs*
+
+# Project specific
+data/*.csv
+!data/sample.csv  # Keep sample data if you have any
+*.log
+logs/
+tmp/
+
+# Optional: Specific to your build process
+public/js/*.min.js
+public/css/*.min.css
+.parcel-cache/
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Lock files (uncomment if you want to ignore lock files)
+# package-lock.json
+# pnpm-lock.yaml
+# yarn.lock
