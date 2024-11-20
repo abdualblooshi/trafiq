@@ -5,12 +5,12 @@
   "main": "server/server.js",
   "scripts": {
     "setup": "node setup.js",
-    "copy-vendor": "node setup.js",
-    "build": "pnpm run copy-vendor && pnpm run build:css",
     "build:css": "tailwindcss -i ./src/css/input.css -o ./public/css/styles.css",
     "watch:css": "tailwindcss -i ./src/css/input.css -o ./public/css/styles.css --watch",
-    "dev": "nodemon server/server.js",
-    "start": "node server/server.js"
+    "build": "pnpm run setup && pnpm run build:css",
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js & pnpm run watch:css",
+    "deploy": "./deploy.sh"
   },
   "keywords": [
     "traffic",

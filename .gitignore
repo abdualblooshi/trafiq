@@ -65,7 +65,6 @@ coverage/
 .nfs*
 
 # Project specific
-data/*.csv
 !data/sample.csv  # Keep sample data if you have any
 *.log
 logs/
