@@ -3,6 +3,8 @@ class Visualization {
     this.particles = new ParticleSystem(canvas);
     this.dataManager = dataManager;
     this.currentState = null;
+    this.layoutCache = new Map(); // Cache layouts
+    this.worker = new Worker("js/layoutWorker.js"); // Offload heavy computations
   }
 
   async initialize() {
