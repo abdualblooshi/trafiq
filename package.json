@@ -4,17 +4,13 @@
   "description": "🚗 TrafiQ is an interactive web application designed to visualize and analyze traffic incidents in Dubai. It features dynamic maps, real-time insights, and customizable accessibility settings to help users explore patterns and trends in traffic data effectively.",
   "main": "server/server.js",
   "scripts": {
-    "start": "node server/server.js",
+    "setup": "node setup.js",
+    "copy-vendor": "node setup.js",
+    "build": "pnpm run copy-vendor && pnpm run build:css",
+    "build:css": "tailwindcss -i ./src/css/input.css -o ./public/css/styles.css",
+    "watch:css": "tailwindcss -i ./src/css/input.css -o ./public/css/styles.css --watch",
     "dev": "nodemon server/server.js",
-    "copy-vendor": "mkdir -p public/vendor && npm run copy-mapbox && npm run copy-d3 && npm run copy-scrollama && npm run copy-vega && npm run copy-fa",
-    "copy-mapbox": "cp -r node_modules/mapbox-gl/dist/* public/vendor/mapbox-gl/",
-    "copy-d3": "cp node_modules/d3/dist/d3.min.js public/vendor/d3/",
-    "copy-scrollama": "cp node_modules/scrollama/build/scrollama.min.js public/vendor/scrollama/",
-    "copy-vega": "cp node_modules/vega/build/vega.min.js public/vendor/vega/ && cp node_modules/vega-lite/build/vega-lite.min.js public/vendor/vega-lite/ && cp node_modules/vega-embed/build/vega-embed.min.js public/vendor/vega-embed/",
-    "copy-fa": "mkdir -p public/vendor/fontawesome && cp -r node_modules/@fortawesome/fontawesome-free/css public/vendor/fontawesome/ && cp -r node_modules/@fortawesome/fontawesome-free/webfonts public/vendor/fontawesome/",
-    "build": "npm run copy-vendor && npm run build:css",
-    "build:css": "tailwindcss -i ./src/css/input.css -o ./public/css/styles.css --watch",
-    "watch:css": "tailwindcss -i ./src/css/input.css -o ./public/css/styles.css --watch"
+    "start": "node server/server.js"
   },
   "keywords": [
     "traffic",
