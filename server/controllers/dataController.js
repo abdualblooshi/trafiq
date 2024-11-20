@@ -1,13 +1,18 @@
 // server/controllers/dataController.js
-const fs = require("fs").promises;
-const path = require("path");
 const { parse } = require("csv-parse");
+const axios = require("axios");
 
 class DataController {
   async getIncidents() {
     try {
-      const csvPath = path.join(__dirname, "../../data/Traffic_Incidents.csv");
-      const csvData = await fs.readFile(csvPath, "utf-8");
+      // Fetch CSV directly from GitHub
+      const csvUrl =
+        "https://raw.githubusercontent.com/sheriefAbdallah/CS318/refs/heads/main/Traffic_Incidents.csv";
+      console.log("Fetching CSV from:", csvUrl);
+
+      const response = await axios.get(csvUrl);
+      const csvData = response.data;
+      console.log("Successfully fetched CSV data");
 
       return new Promise((resolve, reject) => {
         parse(
@@ -29,9 +34,8 @@ class DataController {
                 ...d,
                 date: new Date(d.acci_time),
                 hour: new Date(d.acci_time).getHours(),
-                // Swap the coordinates here:
-                longitude: this.cleanCoordinate(d.acci_y), // Use acci_y for longitude
-                latitude: this.cleanCoordinate(d.acci_x), // Use acci_x for latitude
+                longitude: this.cleanCoordinate(d.acci_y),
+                latitude: this.cleanCoordinate(d.acci_x),
                 severity: d.acci_name.includes("بليغ") ? "severe" : "minor",
               }))
               .filter((d) => this.isValidCoordinate(d.latitude, d.longitude));
@@ -42,7 +46,7 @@ class DataController {
         );
       });
     } catch (error) {
-      console.error("Error reading or processing CSV:", error);
+      console.error("Error fetching or processing CSV:", error);
       throw error;
     }
   }
