@@ -14,10 +14,19 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v3.8.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.8.0/mapbox-gl.js"></script>
   </head>
   <body class="bg-black text-white">
     <div class="flex">
-      <!-- Update the sidebar HTML with data-dropdown attributes -->
+      <!-- Sidebar -->
       <div class="sidebar bg-gray-900 w-64 fixed h-full overflow-auto">
         <div class="p-4">
           <h1 class="text-xl font-bold mb-6">Traffic Incidents Explorer</h1>
@@ -31,9 +40,6 @@
                 class="w-full flex items-center justify-between p-2 bg-gray-800 rounded transition-colors duration-200 hover:bg-gray-700"
               >
                 <span><i class="fas fa-chart-pie mr-2"></i>Overview</span>
-                <i
-                  class="fas fa-chevron-down transition-transform duration-200"
-                ></i>
               </button>
               <div
                 id="overview-dropdown"
@@ -107,6 +113,36 @@
                 >
               </div>
             </div>
+
+            <!-- Add Settings Section -->
+            <div class="dropdown">
+              <button
+                data-dropdown="settings"
+                class="w-full flex items-center justify-between p-2 bg-gray-800 rounded transition-colors duration-200 hover:bg-gray-700"
+              >
+                <span><i class="fas fa-cog mr-2"></i>Settings</span>
+                <i
+                  class="fas fa-chevron-down transition-transform duration-200"
+                ></i>
+              </button>
+              <div
+                id="settings-dropdown"
+                class="dropdown-content pl-4 space-y-2 mt-2"
+              >
+                <button
+                  id="accessibility-settings"
+                  class="w-full text-left p-2 hover:bg-gray-700 rounded transition-colors duration-200"
+                >
+                  <i class="fas fa-universal-access mr-2"></i>Accessibility
+                </button>
+                <button
+                  id="map-settings"
+                  class="w-full text-left p-2 hover:bg-gray-700 rounded transition-colors duration-200"
+                >
+                  <i class="fas fa-map mr-2"></i>Map Display
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- Filters -->
@@ -134,16 +170,16 @@
       </div>
 
       <!-- Main Content -->
-      <div class="flex-1 ml-64">
-        <!-- Story Container -->
+      <div class="flex-1">
+        <div id="map"></div>
+        <canvas id="visualization-canvas"></canvas>
         <div id="story-container">
-          <div class="story-graphic">
-            <canvas id="visualization-canvas"></canvas>
-          </div>
-
           <div class="story-sections">
-            <!-- Section 1: Introduction -->
-            <div class="story-step" data-step="intro">
+            <div
+              class="story-step"
+              data-step="intro"
+              data-location="25.2048,55.2708,11"
+            >
               <div class="story-step-content">
                 <h2 class="text-3xl font-bold mb-4">
                   Traffic Incidents in Dubai
@@ -155,27 +191,41 @@
               </div>
             </div>
 
-            <!-- Section 2: Pattern Overview -->
-            <div class="story-step" data-step="patterns">
+            <div
+              class="story-step"
+              data-step="downtown"
+              data-location="25.1972,55.2744,14"
+            >
               <div class="story-step-content">
-                <h3 class="text-2xl font-bold mb-4">Daily Patterns</h3>
+                <h3 class="text-2xl font-bold mb-4">Downtown Dubai</h3>
                 <p class="text-lg">
-                  Each dot represents an incident. Notice how they cluster
-                  during peak hours...
+                  The highest concentration of incidents occurs in the downtown
+                  area...
                 </p>
               </div>
             </div>
 
-            <!-- Continue with more sections... -->
+            <div
+              class="story-step"
+              data-step="marina"
+              data-location="25.0806,55.1417,15"
+            >
+              <div class="story-step-content">
+                <h3 class="text-2xl font-bold mb-4">Dubai Marina</h3>
+                <p class="text-lg">
+                  The Marina area shows interesting patterns during rush
+                  hours...
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Scripts -->
+    <script src="js/accessabilityManager.js"></script>
     <script src="js/dataManager.js"></script>
-    <script src="js/particles.js"></script>
-    <script src="js/visualization.js"></script>
     <script src="js/scrollManager.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/main.js"></script>
