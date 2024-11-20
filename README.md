@@ -1,6 +1,3 @@
-I'll help enhance your README.md with the course information and some additional organization. Here's the updated version:
-
-````markdown
 # TrafiQ
 
 **TrafiQ** is a web-based application for visualizing and analyzing traffic incidents in Dubai. The app provides a user-friendly interface for exploring traffic data, identifying patterns, and improving awareness of traffic dynamics through interactive maps, real-time visualizations, and customizable settings.
