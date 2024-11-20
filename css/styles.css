@@ -54,11 +54,24 @@
 .dropdown-content {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease-out;
+  transition: all 0.3s ease-in-out;
 }
 
 .dropdown-content.show {
-  max-height: 500px;
+  max-height: 200px; /* Adjust based on your needs */
+}
+
+.fas.fa-chevron-down {
+  transition: transform 0.3s ease;
+}
+
+/* Hover effects */
+.dropdown button:hover {
+  background-color: rgba(75, 85, 99, 0.7);
+}
+
+.dropdown-content a:hover {
+  background-color: rgba(75, 85, 99, 0.5);
 }
 
 /* Animation classes */

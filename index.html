@@ -17,7 +17,7 @@
   </head>
   <body class="bg-black text-white">
     <div class="flex">
-      <!-- Sidebar -->
+      <!-- Update the sidebar HTML with data-dropdown attributes -->
       <div class="sidebar bg-gray-900 w-64 fixed h-full overflow-auto">
         <div class="p-4">
           <h1 class="text-xl font-bold mb-6">Traffic Incidents Explorer</h1>
@@ -25,66 +25,84 @@
           <!-- Categories -->
           <div class="space-y-4">
             <!-- Overview -->
-            <div>
+            <div class="dropdown">
               <button
-                onclick="toggleDropdown('overview')"
-                class="w-full flex items-center justify-between p-2 bg-gray-800 rounded"
+                data-dropdown="overview"
+                class="w-full flex items-center justify-between p-2 bg-gray-800 rounded transition-colors duration-200 hover:bg-gray-700"
               >
                 <span><i class="fas fa-chart-pie mr-2"></i>Overview</span>
-                <i class="fas fa-chevron-down"></i>
+                <i
+                  class="fas fa-chevron-down transition-transform duration-200"
+                ></i>
               </button>
               <div
                 id="overview-dropdown"
                 class="dropdown-content pl-4 space-y-2 mt-2"
               >
-                <a href="#" class="block p-2 hover:bg-gray-800 rounded"
+                <a
+                  href="#"
+                  class="block p-2 hover:bg-gray-700 rounded transition-colors duration-200"
                   >Summary</a
                 >
-                <a href="#" class="block p-2 hover:bg-gray-800 rounded"
+                <a
+                  href="#"
+                  class="block p-2 hover:bg-gray-700 rounded transition-colors duration-200"
                   >Statistics</a
                 >
               </div>
             </div>
 
             <!-- Time Analysis -->
-            <div>
+            <div class="dropdown">
               <button
-                onclick="toggleDropdown('time')"
-                class="w-full flex items-center justify-between p-2 bg-gray-800 rounded"
+                data-dropdown="time"
+                class="w-full flex items-center justify-between p-2 bg-gray-800 rounded transition-colors duration-200 hover:bg-gray-700"
               >
                 <span><i class="fas fa-clock mr-2"></i>Time Analysis</span>
-                <i class="fas fa-chevron-down"></i>
+                <i
+                  class="fas fa-chevron-down transition-transform duration-200"
+                ></i>
               </button>
               <div
                 id="time-dropdown"
                 class="dropdown-content pl-4 space-y-2 mt-2"
               >
-                <a href="#" class="block p-2 hover:bg-gray-800 rounded"
+                <a
+                  href="#"
+                  class="block p-2 hover:bg-gray-700 rounded transition-colors duration-200"
                   >Daily Patterns</a
                 >
-                <a href="#" class="block p-2 hover:bg-gray-800 rounded"
+                <a
+                  href="#"
+                  class="block p-2 hover:bg-gray-700 rounded transition-colors duration-200"
                   >Weekly Trends</a
                 >
               </div>
             </div>
 
             <!-- Location Analysis -->
-            <div>
+            <div class="dropdown">
               <button
-                onclick="toggleDropdown('location')"
-                class="w-full flex items-center justify-between p-2 bg-gray-800 rounded"
+                data-dropdown="location"
+                class="w-full flex items-center justify-between p-2 bg-gray-800 rounded transition-colors duration-200 hover:bg-gray-700"
               >
                 <span><i class="fas fa-map-marker-alt mr-2"></i>Location</span>
-                <i class="fas fa-chevron-down"></i>
+                <i
+                  class="fas fa-chevron-down transition-transform duration-200"
+                ></i>
               </button>
               <div
                 id="location-dropdown"
                 class="dropdown-content pl-4 space-y-2 mt-2"
               >
-                <a href="#" class="block p-2 hover:bg-gray-800 rounded"
+                <a
+                  href="#"
+                  class="block p-2 hover:bg-gray-700 rounded transition-colors duration-200"
                   >Heat Map</a
                 >
-                <a href="#" class="block p-2 hover:bg-gray-800 rounded"
+                <a
+                  href="#"
+                  class="block p-2 hover:bg-gray-700 rounded transition-colors duration-200"
                   >Clusters</a
                 >
               </div>
@@ -97,16 +115,16 @@
             <div class="space-y-4">
               <div>
                 <label class="block text-sm mb-2">Date Range</label>
-                <select class="w-full bg-gray-800 p-2 rounded">
-                  <option>All Time</option>
-                  <option>Last Week</option>
-                  <option>Last Month</option>
+                <select id="dateFilter" class="w-full bg-gray-800 p-2 rounded">
+                  <option value="all">All Time</option>
+                  <option value="lastWeek">Last Week</option>
+                  <option value="lastMonth">Last Month</option>
                 </select>
               </div>
               <div>
                 <label class="block text-sm mb-2">Incident Type</label>
-                <select class="w-full bg-gray-800 p-2 rounded">
-                  <option>All Types</option>
+                <select id="typeFilter" class="w-full bg-gray-800 p-2 rounded">
+                  <option value="all">All Types</option>
                   <!-- Will be populated dynamically -->
                 </select>
               </div>
