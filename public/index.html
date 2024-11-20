@@ -1,45 +1,49 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Traffic Incidents Story</title>
-    <link rel="stylesheet" href="css/styles.css" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://unpkg.com/scrollama"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
     <meta
       name="viewport"
-      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"
     />
-    <link
-      href="https://api.mapbox.com/mapbox-gl-js/v3.8.0/mapbox-gl.css"
-      rel="stylesheet"
-    />
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.8.0/mapbox-gl.js"></script>
+    <title>TrafiQ - Traffic Incidents Visualization</title>
+
+    <!-- Tailwind (keeping CDN for now, but you can also move this to vendor if needed) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome - Local -->
+    <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css" />
+
+    <!-- Mapbox - Local -->
+    <link href="/vendor/mapbox-gl/mapbox-gl.css" rel="stylesheet" />
+    <script src="/vendor/mapbox-gl/mapbox-gl.js"></script>
+
+    <!-- Data Visualization Libraries - Local -->
+    <script src="/vendor/d3/d3.min.js"></script>
+    <script src="/vendor/scrollama/scrollama.min.js"></script>
+    <script src="/vendor/vega/vega.min.js"></script>
+    <script src="/vendor/vega-lite/vega-lite.min.js"></script>
+    <script src="/vendor/vega-embed/vega-embed.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link href="/css/styles.css" rel="stylesheet" />
   </head>
   <body class="bg-black text-white">
     <div class="flex">
       <!-- Sidebar -->
       <div class="sidebar bg-gray-900 w-64 fixed h-full overflow-auto">
         <div class="p-4">
-          <h1 class="text-xl font-bold mb-6">Traffic Incidents Explorer</h1>
+          <h1 id="trafiq" class="text-xl font-bold mb-6">TrafiQ</h1>
 
-          <!-- Categories -->
           <div class="space-y-4">
-            <!-- Overview -->
+            <!-- Overview Dropdown -->
             <div class="dropdown">
               <button
                 data-dropdown="overview"
-                class="w-full flex items-center justify-between p-2 bg-gray-800 rounded transition-colors duration-200 hover:bg-gray-700"
+                class="w-full flex justify-between items-center p-2 hover:bg-gray-700 rounded"
               >
-                <span><i class="fas fa-chart-pie mr-2"></i>Overview</span>
+                <span>Overview</span>
+                <i class="fas fa-chevron-down"></i>
               </button>
               <div
                 id="overview-dropdown"
@@ -58,16 +62,14 @@
               </div>
             </div>
 
-            <!-- Time Analysis -->
+            <!-- Time Analysis Dropdown -->
             <div class="dropdown">
               <button
                 data-dropdown="time"
-                class="w-full flex items-center justify-between p-2 bg-gray-800 rounded transition-colors duration-200 hover:bg-gray-700"
+                class="w-full flex justify-between items-center p-2 hover:bg-gray-700 rounded"
               >
-                <span><i class="fas fa-clock mr-2"></i>Time Analysis</span>
-                <i
-                  class="fas fa-chevron-down transition-transform duration-200"
-                ></i>
+                <span>Time Analysis</span>
+                <i class="fas fa-chevron-down"></i>
               </button>
               <div
                 id="time-dropdown"
@@ -86,16 +88,14 @@
               </div>
             </div>
 
-            <!-- Location Analysis -->
+            <!-- Location Dropdown -->
             <div class="dropdown">
               <button
                 data-dropdown="location"
-                class="w-full flex items-center justify-between p-2 bg-gray-800 rounded transition-colors duration-200 hover:bg-gray-700"
+                class="w-full flex justify-between items-center p-2 hover:bg-gray-700 rounded"
               >
-                <span><i class="fas fa-map-marker-alt mr-2"></i>Location</span>
-                <i
-                  class="fas fa-chevron-down transition-transform duration-200"
-                ></i>
+                <span>Location</span>
+                <i class="fas fa-chevron-down"></i>
               </button>
               <div
                 id="location-dropdown"
@@ -114,16 +114,14 @@
               </div>
             </div>
 
-            <!-- Add Settings Section -->
+            <!-- Settings Dropdown -->
             <div class="dropdown">
               <button
                 data-dropdown="settings"
-                class="w-full flex items-center justify-between p-2 bg-gray-800 rounded transition-colors duration-200 hover:bg-gray-700"
+                class="w-full flex justify-between items-center p-2 hover:bg-gray-700 rounded"
               >
-                <span><i class="fas fa-cog mr-2"></i>Settings</span>
-                <i
-                  class="fas fa-chevron-down transition-transform duration-200"
-                ></i>
+                <span>Settings</span>
+                <i class="fas fa-chevron-down"></i>
               </button>
               <div
                 id="settings-dropdown"
@@ -131,39 +129,25 @@
               >
                 <button
                   id="accessibility-settings"
-                  class="w-full text-left p-2 hover:bg-gray-700 rounded transition-colors duration-200"
+                  class="block w-full text-left p-2 hover:bg-gray-700 rounded transition-colors duration-200"
                 >
-                  <i class="fas fa-universal-access mr-2"></i>Accessibility
+                  Accessibility
                 </button>
                 <button
                   id="map-settings"
-                  class="w-full text-left p-2 hover:bg-gray-700 rounded transition-colors duration-200"
+                  class="block w-full text-left p-2 hover:bg-gray-700 rounded transition-colors duration-200"
                 >
-                  <i class="fas fa-map mr-2"></i>Map Display
+                  Map Display
                 </button>
               </div>
             </div>
           </div>
 
-          <!-- Filters -->
+          <!-- Filters Section -->
           <div class="mt-8">
             <h2 class="text-lg font-semibold mb-4">Filters</h2>
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm mb-2">Date Range</label>
-                <select id="dateFilter" class="w-full bg-gray-800 p-2 rounded">
-                  <option value="all">All Time</option>
-                  <option value="lastWeek">Last Week</option>
-                  <option value="lastMonth">Last Month</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm mb-2">Incident Type</label>
-                <select id="typeFilter" class="w-full bg-gray-800 p-2 rounded">
-                  <option value="all">All Types</option>
-                  <!-- Will be populated dynamically -->
-                </select>
-              </div>
+            <div id="filters" class="space-y-4">
+              <!-- Filters will be inserted here by JavaScript -->
             </div>
           </div>
         </div>
@@ -172,7 +156,6 @@
       <!-- Main Content -->
       <div class="flex-1">
         <div id="map"></div>
-        <canvas id="visualization-canvas"></canvas>
         <div id="story-container">
           <div class="story-sections">
             <div
@@ -223,11 +206,11 @@
       </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="js/accessabilityManager.js"></script>
-    <script src="js/dataManager.js"></script>
-    <script src="js/scrollManager.js"></script>
-    <script src="js/sidebar.js"></script>
-    <script src="js/main.js"></script>
+    <!-- Application JavaScript -->
+    <script src="/js/dataManager.js"></script>
+    <script src="/js/scrollManager.js"></script>
+    <script src="/js/accessibilityManager.js"></script>
+    <script src="/js/sidebar.js"></script>
+    <script src="/js/main.js"></script>
   </body>
 </html>

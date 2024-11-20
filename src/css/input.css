@@ -1,0 +1,187 @@
+/* Base styles */
+:root {
+  --sidebar-width: 16rem;
+  --story-opacity: 0.3;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background: black;
+  color: white;
+}
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-width);
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 20;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background: rgb(17, 24, 39);
+}
+
+/* Map container */
+#map {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: calc(100% - var(--sidebar-width));
+  z-index: 1;
+}
+
+/* Story container */
+#story-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.story-sections {
+  position: relative;
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+}
+
+.story-step {
+  min-height: 100vh;
+  padding: 2rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  opacity: var(--story-opacity);
+  transition: all 0.5s ease;
+}
+
+.story-step.is-active {
+  opacity: 1;
+}
+
+.story-step-content {
+  background: rgba(17, 24, 39, 0.95);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  max-width: 500px;
+  width: 100%;
+  pointer-events: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Dropdown styles */
+.dropdown-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+}
+
+.dropdown-content.show {
+  max-height: 200px;
+}
+
+/* Button styles */
+.dropdown button {
+  width: 100%;
+  text-align: left;
+  transition: background-color 0.3s ease;
+}
+
+.dropdown button:hover {
+  background-color: rgba(75, 85, 99, 0.7);
+}
+
+/* Icon animation */
+.fas.fa-chevron-down {
+  transition: transform 0.3s ease;
+}
+
+.show .fas.fa-chevron-down {
+  transform: rotate(180deg);
+}
+
+/* Modal styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 30;
+}
+
+.modal-content {
+  background: rgb(31, 41, 55);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  width: 90%;
+  max-width: 500px;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Settings styles */
+.setting-group {
+  margin-bottom: 1rem;
+}
+
+/* Range input styles */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: #4b5563;
+  outline: none;
+  margin: 1rem 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+}
+
+/* Mapbox popup styles */
+.mapboxgl-popup-content {
+  background-color: rgba(17, 24, 39, 0.95);
+  color: white;
+  border-radius: 4px;
+  padding: 1rem;
+}
+
+.popup-content {
+  padding: 10px;
+  max-width: 200px;
+}
+
+.popup-content h3 {
+  margin: 0 0 5px 0;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.popup-content p {
+  margin: 2px 0;
+  font-size: 12px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .story-step-content {
+    max-width: calc(100% - 4rem);
+  }
+}
