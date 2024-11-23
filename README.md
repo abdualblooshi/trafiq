@@ -14,7 +14,7 @@ TrafiQ aims to make traffic incident data more accessible and understandable thr
 
 ### Course Context
 - **Course**: CS338 Data Visualization
-- **Institution**: United Arab Emirates University (UAEU)
+- **Institution**: British University in Dubai (BUID)
 - **Instructor**: Dr. Sharief Abdallah
 - **Semester**: Spring 2024
 
