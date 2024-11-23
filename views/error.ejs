@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include('partials/header') %>
+  <title>Error - TrafiQ</title>
+</head>
+
+<body class="bg-black text-white">
+  <%- include('partials/sidebar', { active: null }) %>
+
+  <div class="ml-64 p-6 flex items-center justify-center min-h-screen">
+    <div class="text-center">
+      <h1 class="text-4xl font-bold mb-4">Error</h1>
+      <p class="text-xl mb-6"><%= error.message || 'An error occurred' %></p>
+      <a href="/" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Return to Homepage
+      </a>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+
+</html>

@@ -1,0 +1,30 @@
+<!--layout.ejs-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>TrafiQ - <%= typeof title != 'undefined' ? title : 'Traffic Analysis' %></title>
+  <link href="/css/styles.css" rel="stylesheet">
+  <link href="/vendor/fontawesome/css/all.min.css" rel="stylesheet">
+  <link href="/vendor/mapbox-gl/mapbox-gl.css" rel="stylesheet">
+</head>
+
+<body class="bg-black text-white">
+  <%- include('partials/sidebar', { active: typeof active != 'undefined' ? active : '' }) %>
+
+  <%- body %>
+
+  <script src="/vendor/mapbox-gl/mapbox-gl.js"></script>
+  <script src="/vendor/scrollama/scrollama.min.js"></script>
+  <script src="/js/dataManager.js"></script>
+  <script src="/js/scrollManager.js"></script>
+  <script src="/js/accessibilityManager.js"></script>
+  <script src="/js/sidebar.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/table.js"></script>
+</body>
+
+</html>
