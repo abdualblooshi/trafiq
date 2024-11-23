@@ -109,4 +109,5 @@ ls -R public/
 
 # Start the server
 echo "🚀 Starting server..."
-pnpm start
+# testing to see if it causes deployment to be stuck
+# pnpm start 
