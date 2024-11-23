@@ -7,10 +7,9 @@
     "setup": "node setup.js",
     "build:css": "tailwindcss -i ./src/css/input.css -o ./public/css/styles.css",
     "watch:css": "tailwindcss -i ./src/css/input.css -o ./public/css/styles.css --watch",
-    "build": "pnpm run setup && pnpm run build:css",
+    "build": "pnpm install --frozen-lockfile",
     "start": "node server/server.js",
-    "dev": "nodemon server/server.js & pnpm run watch:css",
-    "deploy": "./deploy.sh"
+    "dev": "nodemon server/server.js & pnpm run watch:css"
   },
   "keywords": [
     "traffic",
