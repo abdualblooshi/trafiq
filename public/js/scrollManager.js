@@ -89,48 +89,66 @@ class ScrollManager {
   }
 
   updateStoryContent(stats) {
+    if (!stats) {
+      console.warn("No stats available for story content");
+      stats = {
+        totalIncidents: 0,
+        severeIncidents: 0,
+        byType: {},
+        byArea: {
+          downtown: 0,
+          marina: 0,
+          deira: 0,
+          other: 0,
+        },
+      };
+    }
+
     const storyContainer = document.querySelector(".story-sections");
     if (!storyContainer) {
       console.error("Story container not found");
       return;
     }
 
-    storyContainer.innerHTML = `
-            <div class="story-step" data-step="intro" data-location="25.2048,55.2708,11">
-                <div class="story-step-content">
-                    <h2 class="text-3xl font-bold mb-4">Traffic Incidents in Dubai</h2>
-                    <p class="text-lg">Analyzing ${stats.totalIncidents} traffic incidents, including ${stats.severeIncidents} severe cases. 
-                    The most common type is ${Object.entries(stats.byType).sort((a, b) => b[1] - a[1])[0][0]}.</p>
-                </div>
-            </div>
+    try {
+      storyContainer.innerHTML = `
+        <div class="story-step" data-step="intro" data-location="25.2048,55.2708,11">
+          <div class="story-step-content">
+            <h2 class="text-3xl font-bold mb-4">Traffic Incidents in Dubai</h2>
+            <p class="text-lg">Analyzing ${stats.totalIncidents} traffic incidents, including ${stats.severeIncidents} severe cases.</p>
+          </div>
+        </div>
 
-            <div class="story-step" data-step="downtown" data-location="25.1972,55.2744,14">
-                <div class="story-step-content">
-                    <h3 class="text-2xl font-bold mb-4">Downtown Dubai</h3>
-                    <p class="text-lg">The downtown area has recorded ${stats.byArea.downtown} incidents, 
-                    with peak hours between ${stats.byHour.indexOf(Math.max(...stats.byHour))}:00-${stats.byHour.indexOf(Math.max(...stats.byHour)) + 1}:00.</p>
-                </div>
-            </div>
+        <div class="story-step" data-step="downtown" data-location="25.1972,55.2744,14">
+          <div class="story-step-content">
+            <h3 class="text-2xl font-bold mb-4">Downtown Dubai</h3>
+            <p class="text-lg">The downtown area has recorded ${stats.byArea.downtown} incidents.</p>
+          </div>
+        </div>
 
-            <div class="story-step" data-step="marina" data-location="25.0806,55.1417,15">
-                <div class="story-step-content">
-                    <h3 class="text-2xl font-bold mb-4">Dubai Marina</h3>
-                    <p class="text-lg">The Marina area has seen ${stats.byArea.marina} incidents, 
-                    with ${Object.entries(stats.byType)
-                      .filter((t) => t[0].includes("دراجة"))
-                      .reduce(
-                        (a, b) => a + b[1],
-                        0
-                      )} involving motorcycles or bicycles.</p>
-                </div>
-            </div>
-        `;
+        <div class="story-step" data-step="marina" data-location="25.0806,55.1417,15">
+          <div class="story-step-content">
+            <h3 class="text-2xl font-bold mb-4">Dubai Marina</h3>
+            <p class="text-lg">The Marina area has seen ${stats.byArea.marina} incidents.</p>
+          </div>
+        </div>`;
+    } catch (error) {
+      console.error("Error updating story content:", error);
+    }
   }
 
   async initMap() {
     try {
       const response = await fetch("/mapbox-token");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
+
+      if (!data.token) {
+        throw new Error("No Mapbox token received");
+      }
+
       mapboxgl.accessToken = data.token;
 
       this.map = new mapboxgl.Map({
@@ -147,12 +165,23 @@ class ScrollManager {
         this.addDataLayers();
       });
 
-      // Add navigation controls
       this.map.addControl(new mapboxgl.NavigationControl(), "top-right");
 
       return true;
     } catch (error) {
       console.error("Error initializing map:", error);
+      // Add a visible error message to the map container
+      const mapContainer = document.getElementById("map");
+      if (mapContainer) {
+        mapContainer.innerHTML = `
+          <div class="flex items-center justify-center h-full bg-gray-900">
+            <div class="text-center p-4">
+              <h3 class="text-xl text-red-500 mb-2">Map Loading Error</h3>
+              <p class="text-gray-300">${error.message}</p>
+            </div>
+          </div>
+        `;
+      }
       return false;
     }
   }

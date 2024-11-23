@@ -8,7 +8,6 @@ class DataManager {
     };
   }
 
-  // dataManager.js
   async loadData() {
     try {
       console.log("Attempting to fetch incident data...");
@@ -88,10 +87,11 @@ class DataManager {
   }
 
   updateColorScheme(newColors) {
+    console.log("DataManager: Updating color scheme to:", newColors);
     this.colorScheme = { ...this.colorScheme, ...newColors };
+    console.log("DataManager: Updated color scheme is now:", this.colorScheme);
   }
 
-  // dataManager.js
   getGeoJSON() {
     if (!this.processedData || !Array.isArray(this.processedData)) {
       console.error("Invalid or missing processed data");
@@ -100,6 +100,11 @@ class DataManager {
         features: [],
       };
     }
+
+    console.log(
+      "Creating GeoJSON with current color scheme:",
+      this.colorScheme
+    );
 
     const features = this.processedData.map((d) => ({
       type: "Feature",
@@ -112,6 +117,10 @@ class DataManager {
         type: d.acci_name,
         time: d.acci_time,
         description: d.acci_desc || "",
+        color:
+          d.severity === "severe"
+            ? this.colorScheme.severe
+            : this.colorScheme.minor,
       },
     }));
 

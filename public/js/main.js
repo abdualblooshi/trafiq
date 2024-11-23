@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       dataManager,
       scrollManager
     );
+    window.accessibilityManager = accessibilityManager; // Make it globally available if needed
 
     // Initialize sidebar
     const sidebar = new Sidebar(dataManager);

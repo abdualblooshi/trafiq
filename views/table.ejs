@@ -1,0 +1,116 @@
+<div class="lg:ml-64 p-4 md:p-6">
+  <!-- Header Section -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+    <h1 class="text-2xl font-bold">Traffic Incidents Data</h1>
+    <div class="flex flex-col sm:flex-row w-full md:w-auto space-y-2 sm:space-y-0 sm:space-x-4">
+      <input type="text" id="search" placeholder="Search..." class="w-full sm:w-auto bg-gray-800 px-4 py-2 rounded">
+      <select id="filterSeverity" class="w-full sm:w-auto bg-gray-800 px-4 py-2 rounded">
+        <option value="">All Severities</option>
+        <option value="severe">Severe</option>
+        <option value="minor">Minor</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  <div class="overflow-x-auto bg-gray-900 rounded-lg">
+    <!-- Desktop Table -->
+    <table class="w-full text-left hidden lg:table">
+      <thead class="bg-gray-800">
+        <tr>
+          <th class="p-4">Accident ID</th>
+          <th class="p-4">Date & Time</th>
+          <th class="p-4">Description</th>
+          <th class="p-4">Latitude</th>
+          <th class="p-4">Longitude</th>
+          <th class="p-4">Severity</th>
+          <th class="p-4">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% incidents.forEach(incident => { %>
+        <tr class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
+          <td class="p-4"><%= incident.acci_id %></td>
+          <td class="p-4"><%= new Date(incident.acci_time).toLocaleString() %></td>
+          <td class="p-4"><%= incident.acci_desc %></td>
+          <td class="p-4"><%= incident.latitude %></td>
+          <td class="p-4"><%= incident.longitude %></td>
+          <td class="p-4">
+            <span class="px-2 py-1 rounded text-sm <%= incident.severity === 'severe' ? 'bg-red-900 text-red-200' : 'bg-yellow-900 text-yellow-200' %>">
+              <%= incident.severity %>
+            </span>
+          </td>
+          <td class="p-4"><%= incident.status %></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+
+    <!-- Mobile/Tablet Cards -->
+    <div class="lg:hidden space-y-4 p-4">
+      <% incidents.forEach(incident => { %>
+      <div class="bg-gray-800 rounded-lg p-4 space-y-3">
+        <div class="flex justify-between items-start">
+          <span class="text-sm text-gray-400">ID: <%= incident.acci_id %></span>
+          <span class="px-2 py-1 rounded text-sm <%= incident.severity === 'severe' ? 'bg-red-900 text-red-200' : 'bg-yellow-900 text-yellow-200' %>">
+            <%= incident.severity %>
+          </span>
+        </div>
+
+        <div class="space-y-2">
+          <div>
+            <span class="text-gray-400 text-sm">Date & Time:</span>
+            <p><%= new Date(incident.acci_time).toLocaleString() %></p>
+          </div>
+
+          <div>
+            <span class="text-gray-400 text-sm">Description:</span>
+            <p><%= incident.acci_desc %></p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <span class="text-gray-400 text-sm">Latitude:</span>
+              <p><%= incident.latitude %></p>
+            </div>
+            <div>
+              <span class="text-gray-400 text-sm">Longitude:</span>
+              <p><%= incident.longitude %></p>
+            </div>
+          </div>
+
+          <div>
+            <span class="text-gray-400 text-sm">Status:</span>
+            <p><%= incident.status %></p>
+          </div>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+  </div>
+
+  <!-- Pagination Section -->
+  <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+    <div class="text-gray-400 text-sm text-center sm:text-left">
+      Showing <%= (currentPage - 1) * limit + 1 %> to <%= Math.min(currentPage * limit, totalRecords) %> of <%= totalRecords %> entries
+    </div>
+
+    <div class="flex flex-wrap justify-center gap-2">
+      <% if (currentPage > 1) { %>
+      <a href="/table?page=1" class="px-3 py-1 bg-gray-800 rounded hover:bg-gray-700 text-sm">First</a>
+      <a href="/table?page=<%= currentPage - 1 %>" class="px-3 py-1 bg-gray-800 rounded hover:bg-gray-700 text-sm">Previous</a>
+      <% } %>
+
+      <% for(let i = Math.max(1, currentPage - 1); i <= Math.min(totalPages, currentPage + 1); i++) { %>
+      <a href="/table?page=<%= i %>" class="px-3 py-1 rounded text-sm <%= i === currentPage ? 'bg-blue-600' : 'bg-gray-800 hover:bg-gray-700' %>">
+        <%= i %>
+      </a>
+      <% } %>
+
+      <% if (currentPage < totalPages) { %>
+      <a href="/table?page=<%= currentPage + 1 %>" class="px-3 py-1 bg-gray-800 rounded hover:bg-gray-700 text-sm">Next</a>
+      <a href="/table?page=<%= totalPages %>" class="px-3 py-1 bg-gray-800 rounded hover:bg-gray-700 text-sm">Last</a>
+      <% } %>
+    </div>
+  </div>
+</div>
