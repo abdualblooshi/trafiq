@@ -1,46 +1,63 @@
-// sidebar.js
 class Sidebar {
   constructor(dataManager) {
     this.dataManager = dataManager;
     this.activeDropdown = null;
+    this.modals = {
+      accessibility: null,
+      map: null,
+    };
+    this.isMobile = window.innerWidth < 1024;
     this.initializeSidebar();
+    this.handleResize();
+  }
+
+  handleResize() {
+    window.addEventListener("resize", () => {
+      const wasMobile = this.isMobile;
+      this.isMobile = window.innerWidth < 1024;
+
+      // Handle transition between mobile and desktop
+      if (wasMobile !== this.isMobile) {
+        this.closeAllDropdowns();
+      }
+    });
   }
 
   initializeSidebar() {
     // Initialize dropdowns
     this.initializeDropdowns();
 
-    // Initialize filters
-    this.initializeFilters();
-
     // Initialize settings buttons
     this.initializeSettings();
+
+    // Initialize filters
+    this.initializeFilters();
   }
 
   initializeDropdowns() {
-    // Add click handlers to all dropdown buttons
-    document.querySelectorAll(".dropdown").forEach((dropdown) => {
-      const button =
-        dropdown.querySelector("button") ||
-        dropdown.querySelector("[data-dropdown]");
+    const dropdowns = document.querySelectorAll(".dropdown");
+
+    dropdowns.forEach((dropdown) => {
+      const button = dropdown.querySelector("button[data-dropdown]");
       const content = dropdown.querySelector(".dropdown-content");
 
       if (button && content) {
-        button.addEventListener("click", () => {
-          // Close other open dropdowns
+        button.addEventListener("click", (e) => {
+          e.preventDefault();
+
+          // Close other dropdowns
           if (this.activeDropdown && this.activeDropdown !== content) {
             this.activeDropdown.classList.remove("show");
-            const activeIcon = this.activeDropdown.parentElement.querySelector(
-              "i.fas.fa-chevron-down"
-            );
-            if (activeIcon) {
-              activeIcon.style.transform = "rotate(0deg)";
+            const activeButton =
+              this.activeDropdown.parentElement.querySelector("button");
+            if (activeButton) {
+              activeButton.querySelector("i").style.transform = "rotate(0deg)";
             }
           }
 
           // Toggle current dropdown
           content.classList.toggle("show");
-          const icon = button.querySelector("i.fas.fa-chevron-down");
+          const icon = button.querySelector("i");
           if (icon) {
             icon.style.transform = content.classList.contains("show")
               ? "rotate(180deg)"
@@ -53,178 +70,150 @@ class Sidebar {
         });
       }
     });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".dropdown")) {
+        this.closeAllDropdowns();
+      }
+    });
   }
 
-  initializeFilters() {
-    // Create and append filter elements
-    const filtersContainer = document.querySelector("#filters");
-    if (filtersContainer) {
-      filtersContainer.innerHTML = this.createFilterHTML();
-
-      // Initialize date range filter
-      const dateFilter = document.getElementById("dateFilter");
-      if (dateFilter) {
-        dateFilter.addEventListener("change", (e) => this.handleDateFilter(e));
-      }
-
-      // Initialize incident type filter
-      const typeFilter = document.getElementById("typeFilter");
-      if (typeFilter) {
-        typeFilter.addEventListener("change", (e) => this.handleTypeFilter(e));
-      }
-
-      // Initialize severity filter
-      const severityFilter = document.getElementById("severityFilter");
-      if (severityFilter) {
-        severityFilter.addEventListener("change", (e) =>
-          this.handleSeverityFilter(e)
-        );
-      }
+  closeAllDropdowns() {
+    // Close dropdowns when transitioning between mobile and desktop
+    if (this.isMobile) {
+      const sidebarContainer = document.getElementById("sidebar-container");
+      sidebarContainer.classList.add("-translate-x-full");
+      document.getElementById("sidebar-backdrop").classList.add("hidden");
     }
-  }
 
-  createFilterHTML() {
-    return `
-      <div class="filter-group mb-4">
-        <label class="block text-sm font-medium text-gray-300 mb-2">Date Range</label>
-        <select id="dateFilter" class="w-full bg-gray-700 text-white rounded p-2">
-          <option value="all">All Time</option>
-          <option value="today">Today</option>
-          <option value="week">Past Week</option>
-          <option value="month">Past Month</option>
-        </select>
-      </div>
-
-      <div class="filter-group mb-4">
-        <label class="block text-sm font-medium text-gray-300 mb-2">Incident Type</label>
-        <select id="typeFilter" class="w-full bg-gray-700 text-white rounded p-2">
-          <option value="all">All Types</option>
-          <option value="collision">Collision</option>
-          <option value="pedestrian">Pedestrian</option>
-          <option value="motorcycle">Motorcycle</option>
-        </select>
-      </div>
-
-      <div class="filter-group mb-4">
-        <label class="block text-sm font-medium text-gray-300 mb-2">Severity</label>
-        <select id="severityFilter" class="w-full bg-gray-700 text-white rounded p-2">
-          <option value="all">All Severities</option>
-          <option value="severe">Severe</option>
-          <option value="minor">Minor</option>
-        </select>
-      </div>
-    `;
+    const dropdowns = document.querySelectorAll(".dropdown-content");
+    dropdowns.forEach((dropdown) => {
+      dropdown.classList.remove("show");
+      const button = dropdown.parentElement.querySelector("button");
+      if (button) {
+        const icon = button.querySelector("i");
+        if (icon) icon.style.transform = "rotate(0deg)";
+      }
+    });
+    this.activeDropdown = null;
   }
 
   initializeSettings() {
-    // Add click handlers for settings buttons
     const accessibilityBtn = document.getElementById("accessibility-settings");
     const mapSettingsBtn = document.getElementById("map-settings");
 
     if (accessibilityBtn) {
       accessibilityBtn.addEventListener("click", () => {
-        // Trigger accessibility modal
-        const accessibilityManager = new AccessibilityManager(
-          this.dataManager,
-          window.scrollManager
-        );
-        accessibilityManager.showAccessibilityModal();
+        this.showModal("accessibility");
       });
     }
 
     if (mapSettingsBtn) {
       mapSettingsBtn.addEventListener("click", () => {
-        // Trigger map settings modal
-        const accessibilityManager = new AccessibilityManager(
-          this.dataManager,
-          window.scrollManager
-        );
-        accessibilityManager.showMapSettingsModal();
+        this.showModal("map");
       });
     }
+
+    // Initialize modals
+    this.initializeModals();
   }
 
-  handleDateFilter(event) {
-    const dateRange = event.target.value;
-    const currentDate = new Date();
-    let filteredData = this.dataManager.processedData;
+  initializeModals() {
+    // Get modal elements
+    this.modals.accessibility = document.getElementById("accessibility-modal");
+    this.modals.map = document.getElementById("map-modal");
 
-    switch (dateRange) {
-      case "today":
-        filteredData = filteredData.filter((incident) => {
-          const incidentDate = new Date(incident.date);
-          return incidentDate.toDateString() === currentDate.toDateString();
+    // Add close functionality to all modals
+    document.querySelectorAll(".modal").forEach((modal) => {
+      // Initially hide all modals
+      modal.style.display = "none";
+
+      // Add close button functionality
+      const closeBtn = modal.querySelector(".close-modal");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+          modal.style.display = "none";
         });
-        break;
-      case "week":
-        const weekAgo = new Date(currentDate - 7 * 24 * 60 * 60 * 1000);
-        filteredData = filteredData.filter((incident) => {
-          const incidentDate = new Date(incident.date);
-          return incidentDate >= weekAgo;
-        });
-        break;
-      case "month":
-        const monthAgo = new Date(currentDate - 30 * 24 * 60 * 60 * 1000);
-        filteredData = filteredData.filter((incident) => {
-          const incidentDate = new Date(incident.date);
-          return incidentDate >= monthAgo;
-        });
-        break;
-    }
-
-    this.updateMapData(filteredData);
-  }
-
-  handleTypeFilter(event) {
-    const type = event.target.value;
-    let filteredData = this.dataManager.processedData;
-
-    if (type !== "all") {
-      filteredData = filteredData.filter((incident) =>
-        incident.acci_name.toLowerCase().includes(type.toLowerCase())
-      );
-    }
-
-    this.updateMapData(filteredData);
-  }
-
-  handleSeverityFilter(event) {
-    const severity = event.target.value;
-    let filteredData = this.dataManager.processedData;
-
-    if (severity !== "all") {
-      filteredData = filteredData.filter(
-        (incident) => incident.severity === severity
-      );
-    }
-
-    this.updateMapData(filteredData);
-  }
-
-  updateMapData(filteredData) {
-    // Update the map with filtered data
-    if (window.scrollManager && window.scrollManager.map) {
-      const geojsonData = {
-        type: "FeatureCollection",
-        features: filteredData.map((d) => ({
-          type: "Feature",
-          geometry: {
-            type: "Point",
-            coordinates: [d.longitude, d.latitude],
-          },
-          properties: {
-            severity: d.severity,
-            type: d.acci_name,
-            time: d.acci_time,
-            description: d.acci_desc || "",
-          },
-        })),
-      };
-
-      const source = window.scrollManager.map.getSource("incidents");
-      if (source) {
-        source.setData(geojsonData);
       }
+
+      // Close modal when clicking outside
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          modal.style.display = "none";
+        }
+      });
+    });
+  }
+
+  showModal(type) {
+    if (this.modals[type]) {
+      this.modals[type].style.display = "flex";
+    }
+  }
+
+  initializeFilters() {
+    const filtersContainer = document.getElementById("filters");
+    if (!filtersContainer) return;
+
+    // Create date filter
+    const dateFilter = this.createFilter("Date Range", "dateFilter", [
+      { value: "all", label: "All Time" },
+      { value: "today", label: "Today" },
+      { value: "week", label: "Past Week" },
+      { value: "month", label: "Past Month" },
+    ]);
+
+    // Create severity filter
+    const severityFilter = this.createFilter("Severity", "severityFilter", [
+      { value: "all", label: "All Severities" },
+      { value: "severe", label: "Severe" },
+      { value: "minor", label: "Minor" },
+    ]);
+
+    filtersContainer.innerHTML = "";
+    filtersContainer.appendChild(dateFilter);
+    filtersContainer.appendChild(severityFilter);
+
+    // Add event listeners to filters
+    this.initializeFilterEvents();
+  }
+
+  createFilter(label, id, options) {
+    const filterGroup = document.createElement("div");
+    filterGroup.className = "filter-group mb-4";
+
+    filterGroup.innerHTML = `
+            <label class="block text-sm font-medium text-gray-300 mb-2">${label}</label>
+            <select id="${id}" class="w-full bg-gray-700 text-white rounded p-2">
+                ${options
+                  .map(
+                    (option) =>
+                      `<option value="${option.value}">${option.label}</option>`
+                  )
+                  .join("")}
+            </select>
+        `;
+
+    return filterGroup;
+  }
+
+  initializeFilterEvents() {
+    const dateFilter = document.getElementById("dateFilter");
+    const severityFilter = document.getElementById("severityFilter");
+
+    if (dateFilter) {
+      dateFilter.addEventListener("change", (e) => {
+        // Implement date filtering logic
+        console.log("Date filter changed:", e.target.value);
+      });
+    }
+
+    if (severityFilter) {
+      severityFilter.addEventListener("change", (e) => {
+        // Implement severity filtering logic
+        console.log("Severity filter changed:", e.target.value);
+      });
     }
   }
 }

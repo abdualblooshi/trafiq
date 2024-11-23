@@ -5,14 +5,19 @@ const axios = require("axios");
 class DataController {
   async getIncidents() {
     try {
-      // Fetch CSV directly from GitHub
+      // Update the CSV URL to the raw GitHub content URL
       const csvUrl =
-        "https://raw.githubusercontent.com/sheriefAbdallah/CS318/refs/heads/main/Traffic_Incidents.csv";
+        "https://raw.githubusercontent.com/sheriefAbdallah/CS318/main/Traffic_Incidents.csv";
       console.log("Fetching CSV from:", csvUrl);
 
       const response = await axios.get(csvUrl);
       const csvData = response.data;
-      console.log("Successfully fetched CSV data");
+
+      if (!csvData) {
+        throw new Error("No data received from CSV source");
+      }
+
+      console.log("Successfully fetched CSV data, length:", csvData.length);
 
       return new Promise((resolve, reject) => {
         parse(
@@ -29,19 +34,24 @@ class DataController {
               return;
             }
 
-            const processedData = output
-              .map((d) => ({
-                ...d,
-                date: new Date(d.acci_time),
-                hour: new Date(d.acci_time).getHours(),
-                longitude: this.cleanCoordinate(d.acci_y),
-                latitude: this.cleanCoordinate(d.acci_x),
-                severity: d.acci_name.includes("بليغ") ? "severe" : "minor",
-              }))
-              .filter((d) => this.isValidCoordinate(d.latitude, d.longitude));
+            try {
+              const processedData = output
+                .map((d) => ({
+                  acci_id: d.acci_id || "",
+                  acci_time: d.acci_time || "",
+                  acci_desc: d.acci_name || "",
+                  latitude: this.cleanCoordinate(d.acci_x),
+                  longitude: this.cleanCoordinate(d.acci_y),
+                  severity: d.acci_name?.includes("بليغ") ? "severe" : "minor",
+                }))
+                .filter((d) => this.isValidCoordinate(d.latitude, d.longitude));
 
-            console.log("Processed data sample:", processedData.slice(0, 2));
-            resolve(processedData);
+              console.log("Processed data sample:", processedData.slice(0, 2));
+              resolve(processedData);
+            } catch (error) {
+              console.error("Data processing error:", error);
+              reject(error);
+            }
           }
         );
       });
@@ -52,19 +62,13 @@ class DataController {
   }
 
   cleanCoordinate(coord) {
-    const cleaned = parseFloat(coord.trim());
-    if (isNaN(cleaned)) {
-      console.warn("Invalid coordinate:", coord);
-    }
-    return cleaned;
+    if (!coord) return null;
+    const cleaned = parseFloat(String(coord).trim());
+    return isNaN(cleaned) ? null : cleaned;
   }
 
   isValidCoordinate(lat, lng) {
-    const valid = !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0;
-    if (!valid) {
-      console.warn("Invalid coordinate pair:", lat, lng);
-    }
-    return valid;
+    return lat !== null && lng !== null && !isNaN(lat) && !isNaN(lng);
   }
 }
 
