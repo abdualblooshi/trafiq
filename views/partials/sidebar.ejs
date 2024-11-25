@@ -2,65 +2,71 @@
   <div class="p-4">
     <h1 id="trafiq" class="text-xl font-bold mb-6">TrafiQ</h1>
 
-    <div class="space-y-4">
-      <!-- Overview Dropdown -->
-      <div class="dropdown">
-        <button data-dropdown="overview" class="w-full flex justify-between items-center p-2 hover:bg-gray-700 rounded <%= active === 'overview' ? 'bg-gray-700' : '' %>">
-          <span>Overview</span>
-          <i class="fas fa-chevron-down"></i>
-        </button>
-        <div id="overview-dropdown" class="dropdown-content pl-4 space-y-2 mt-2">
-          <a href="/" class="block p-2 hover:bg-gray-700 rounded transition-colors duration-200">Summary</a>
-          <a href="/statistics" class="block p-2 hover:bg-gray-700 rounded transition-colors duration-200">Statistics</a>
-        </div>
-      </div>
-
-      <!-- Time Analysis Dropdown -->
-      <div class="dropdown">
-        <button data-dropdown="time" class="w-full flex justify-between items-center p-2 hover:bg-gray-700 rounded <%= active === 'time' ? 'bg-gray-700' : '' %>">
-          <span>Time Analysis</span>
-          <i class="fas fa-chevron-down"></i>
-        </button>
-        <div id="time-dropdown" class="dropdown-content pl-4 space-y-2 mt-2">
-          <a href="/daily" class="block p-2 hover:bg-gray-700 rounded transition-colors duration-200">Daily Patterns</a>
-          <a href="/weekly" class="block p-2 hover:bg-gray-700 rounded transition-colors duration-200">Weekly Trends</a>
-        </div>
-      </div>
-
-      <!-- Location Dropdown -->
-      <div class="dropdown">
-        <button data-dropdown="location" class="w-full flex justify-between items-center p-2 hover:bg-gray-700 rounded <%= active === 'location' ? 'bg-gray-700' : '' %>">
-          <span>Location</span>
-          <i class="fas fa-chevron-down"></i>
-        </button>
-        <div id="location-dropdown" class="dropdown-content pl-4 space-y-2 mt-2">
-          <a href="/heatmap" class="block p-2 hover:bg-gray-700 rounded transition-colors duration-200">Heat Map</a>
-          <a href="/clusters" class="block p-2 hover:bg-gray-700 rounded transition-colors duration-200">Clusters</a>
-        </div>
-      </div>
-
-      <!-- Settings Dropdown -->
-      <div class="dropdown">
-        <button data-dropdown="settings" class="w-full flex justify-between items-center p-2 hover:bg-gray-700 rounded">
-          <span>Settings</span>
-          <i class="fas fa-chevron-down"></i>
-        </button>
-        <div id="settings-dropdown" class="dropdown-content pl-4 space-y-2 mt-2">
-          <button id="accessibility-settings" class="block w-full text-left p-2 hover:bg-gray-700 rounded transition-colors duration-200">
-            Accessibility
-          </button>
-          <button id="map-settings" class="block w-full text-left p-2 hover:bg-gray-700 rounded transition-colors duration-200">
-            Map Display
-          </button>
-        </div>
+    <!-- OVERVIEW section -->
+    <div class="mb-6">
+      <h2 class="text-gray-500 text-sm mb-2">OVERVIEW</h2>
+      <div class="space-y-2">
+        <a href="/dashboard" class="flex items-center p-2 hover:bg-gray-700 rounded">
+          <i class="fas fa-home mr-2"></i>
+          Dashboard
+        </a>
+        <a href="/statistics" class="flex items-center p-2 hover:bg-gray-700 rounded">
+          <i class="fas fa-chart-bar mr-2"></i>
+          Statistics
+        </a>
+        <a href="/story-map" class="flex items-center p-2 hover:bg-gray-700 rounded">
+          <i class="fas fa-map mr-2"></i>
+          Story Map
+        </a>
       </div>
     </div>
 
-    <!-- Filters Section -->
-    <div class="mt-8">
-      <h2 class="text-lg font-semibold mb-4">Filters</h2>
-      <div id="filters" class="space-y-4">
-        <!-- Filters will be inserted here by JavaScript -->
+    <!-- ANALYSIS section -->
+    <div class="mb-6">
+      <h2 class="text-gray-500 text-sm mb-2">ANALYSIS</h2>
+      <div class="space-y-2">
+        <a href="/trends" class="flex items-center p-2 hover:bg-gray-700 rounded">
+          <i class="fas fa-chart-line mr-2"></i>
+          Trends
+        </a>
+        <a href="/heat-map" class="flex items-center p-2 hover:bg-gray-700 rounded">
+          <i class="fas fa-fire mr-2"></i>
+          Heat Map
+        </a>
+        <a href="/incidents" class="flex items-center p-2 hover:bg-gray-700 rounded">
+          <i class="fas fa-car-crash mr-2"></i>
+          Incidents
+        </a>
+      </div>
+    </div>
+
+    <!-- DATA section -->
+    <div class="mb-6">
+      <h2 class="text-gray-500 text-sm mb-2">DATA</h2>
+      <div class="space-y-2">
+        <a href="/data-table" class="flex items-center p-2 hover:bg-gray-700 rounded">
+          <i class="fas fa-table mr-2"></i>
+          Data Table
+        </a>
+        <a href="/export" class="flex items-center p-2 hover:bg-gray-700 rounded">
+          <i class="fas fa-file-export mr-2"></i>
+          Export
+        </a>
+      </div>
+    </div>
+
+    <!-- SETTINGS section -->
+    <div class="mb-6">
+      <h2 class="text-gray-500 text-sm mb-2">SETTINGS</h2>
+      <div class="space-y-2">
+        <button id="accessibility-settings" class="flex items-center p-2 hover:bg-gray-700 rounded w-full text-left">
+          <i class="fas fa-universal-access mr-2"></i>
+          Accessibility
+        </button>
+        <button id="map-settings" class="flex items-center p-2 hover:bg-gray-700 rounded w-full text-left">
+          <i class="fas fa-map-marked-alt mr-2"></i>
+          Map Settings
+        </button>
       </div>
     </div>
   </div>

@@ -7,15 +7,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>TrafiQ - <%= typeof title != 'undefined' ? title : 'Traffic Analysis' %></title>
-  <link href="/css/styles.css" rel="stylesheet">
-  <link href="/vendor/fontawesome/css/all.min.css" rel="stylesheet">
-  <link href="/vendor/mapbox-gl/mapbox-gl.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Mapbox GL -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+
+  <!-- Vega & Vega-Lite -->
+  <script src="https://cdn.jsdelivr.net/npm/vega@5.25.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.16.3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.22.2"></script>
+
+  <!-- Custom styles -->
+  <style>
+    body {
+      @apply bg-gray-900 text-white;
+    }
+
+    .sidebar {
+      @apply bg-gray-900 text-gray-300;
+    }
+
+    .sidebar a {
+      @apply text-gray-300 hover: text-white transition-colors duration-200;
+    }
+
+    .sidebar h2 {
+      @apply text-gray-500 uppercase tracking-wider text-xs font-semibold;
+    }
+  </style>
 </head>
 
 <body class="bg-black text-white">
   <%- include('partials/sidebar', { active: typeof active != 'undefined' ? active : '' }) %>
-
-  <%- body %>
+  <div class="ml-64 p-6 flex items-center justify-center min-h-screen">
+    <%- body %>
+  </div>
 
   <script src="/vendor/mapbox-gl/mapbox-gl.js"></script>
   <script src="/vendor/scrollama/scrollama.min.js"></script>
