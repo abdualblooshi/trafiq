@@ -6,15 +6,15 @@
     <div class="mb-6">
       <h2 class="text-gray-500 text-sm mb-2">OVERVIEW</h2>
       <div class="space-y-2">
-        <a href="/dashboard" class="flex items-center p-2 hover:bg-gray-700 rounded">
+        <a href="/" class="flex items-center p-2 hover:bg-gray-700 rounded <%= active === 'home' ? 'bg-gray-700' : '' %>">
           <i class="fas fa-home mr-2"></i>
           Dashboard
         </a>
-        <a href="/statistics" class="flex items-center p-2 hover:bg-gray-700 rounded">
+        <a href="/statistics" class="flex items-center p-2 hover:bg-gray-700 rounded <%= active === 'statistics' ? 'bg-gray-700' : '' %>">
           <i class="fas fa-chart-bar mr-2"></i>
           Statistics
         </a>
-        <a href="/story-map" class="flex items-center p-2 hover:bg-gray-700 rounded">
+        <a href="/story-map" class="flex items-center p-2 hover:bg-gray-700 rounded <%= active === 'story-map' ? 'bg-gray-700' : '' %>">
           <i class="fas fa-map mr-2"></i>
           Story Map
         </a>
@@ -25,15 +25,15 @@
     <div class="mb-6">
       <h2 class="text-gray-500 text-sm mb-2">ANALYSIS</h2>
       <div class="space-y-2">
-        <a href="/trends" class="flex items-center p-2 hover:bg-gray-700 rounded">
+        <a href="/trends" class="flex items-center p-2 hover:bg-gray-700 rounded <%= active === 'trends' ? 'bg-gray-700' : '' %>">
           <i class="fas fa-chart-line mr-2"></i>
           Trends
         </a>
-        <a href="/heat-map" class="flex items-center p-2 hover:bg-gray-700 rounded">
+        <a href="/heat-map" class="flex items-center p-2 hover:bg-gray-700 rounded <%= active === 'heat-map' ? 'bg-gray-700' : '' %>">
           <i class="fas fa-fire mr-2"></i>
           Heat Map
         </a>
-        <a href="/incidents" class="flex items-center p-2 hover:bg-gray-700 rounded">
+        <a href="/incidents" class="flex items-center p-2 hover:bg-gray-700 rounded <%= active === 'incidents' ? 'bg-gray-700' : '' %>">
           <i class="fas fa-car-crash mr-2"></i>
           Incidents
         </a>
@@ -44,11 +44,11 @@
     <div class="mb-6">
       <h2 class="text-gray-500 text-sm mb-2">DATA</h2>
       <div class="space-y-2">
-        <a href="/data-table" class="flex items-center p-2 hover:bg-gray-700 rounded">
+        <a href="/data-table" class="flex items-center p-2 hover:bg-gray-700 rounded <%= active === 'data-table' ? 'bg-gray-700' : '' %>">
           <i class="fas fa-table mr-2"></i>
           Data Table
         </a>
-        <a href="/export" class="flex items-center p-2 hover:bg-gray-700 rounded">
+        <a href="/export" class="flex items-center p-2 hover:bg-gray-700 rounded <%= active === 'export' ? 'bg-gray-700' : '' %>">
           <i class="fas fa-file-export mr-2"></i>
           Export
         </a>

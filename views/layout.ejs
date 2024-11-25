@@ -45,13 +45,14 @@
 </head>
 
 <body class="bg-black text-white">
-  <%- include('partials/sidebar', { active: typeof active != 'undefined' ? active : '' }) %>
+  <%- include('partials/sidebar', { active }) %>
   <div class="ml-64 p-6 flex items-center justify-center min-h-screen">
     <%- body %>
   </div>
 
-  <script src="/vendor/mapbox-gl/mapbox-gl.js"></script>
-  <script src="/vendor/scrollama/scrollama.min.js"></script>
+  <!-- Replaced vendor scripts with CDN versions -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+  <script src="https://unpkg.com/scrollama"></script>
   <script src="/js/dataManager.js"></script>
   <script src="/js/scrollManager.js"></script>
   <script src="/js/accessibilityManager.js"></script>
