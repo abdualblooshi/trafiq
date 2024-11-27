@@ -7,21 +7,81 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>TrafiQ - <%= typeof title != 'undefined' ? title : 'Traffic Analysis' %></title>
-  <link href="/css/styles.css" rel="stylesheet">
-  <link href="/vendor/fontawesome/css/all.min.css" rel="stylesheet">
-  <link href="/vendor/mapbox-gl/mapbox-gl.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Mapbox GL -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+
+  <!-- Vega & Vega-Lite -->
+  <script src="https://cdn.jsdelivr.net/npm/vega@5.25.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.16.3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.22.2"></script>
+  <!-- Plotly -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+
+  <!-- Custom styles -->
+  <style>
+    .sidebar {
+      @apply bg-slate-800 text-slate-200;
+    }
+
+    .sidebar a {
+      @apply text-slate-300 hover: text-white hover:bg-slate-700 transition-colors duration-200;
+    }
+
+    .sidebar h2 {
+      @apply text-slate-400 uppercase tracking-wider text-xs font-semibold;
+    }
+
+    /* Additional color scheme improvements */
+    .btn-primary {
+      @apply bg-indigo-600 hover: bg-indigo-700 text-white;
+    }
+
+    .card {
+      @apply bg-slate-800 border border-slate-700;
+    }
+
+    .input {
+      @apply bg-slate-700 border-slate-600 text-slate-200 focus: border-indigo-500;
+    }
+
+    .table-header {
+      @apply bg-slate-800 text-slate-200;
+    }
+
+    .table-row {
+      @apply border-slate-700 hover: bg-slate-800;
+    }
+  </style>
 </head>
 
-<body class="bg-black text-white">
-  <%- include('partials/sidebar', { active: typeof active != 'undefined' ? active : '' }) %>
+<body class="bg-slate-950 text-slate-100">
+  <%- include('partials/sidebar', { active }) %>
+  <div class="ml-64 p-6 flex items-center justify-center min-h-screen">
+    <%- body %>
+  </div>
 
-  <%- body %>
-
-  <script src="/vendor/mapbox-gl/mapbox-gl.js"></script>
-  <script src="/vendor/scrollama/scrollama.min.js"></script>
+  <!-- Replaced vendor scripts with CDN versions -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+  <script src="https://unpkg.com/scrollama"></script>
   <script src="/js/dataManager.js"></script>
   <script src="/js/scrollManager.js"></script>
   <script src="/js/accessibilityManager.js"></script>
+  <script src="/js/trendingManager.js"></script>
+  <script src="/js/dashboardManager.js"></script>
+  <script src="/js/timedisManager.js"></script>
+  <script src="/js/incidentManager.js"></script>
+  <script src="/js/circleManager.js"></script>
   <script src="/js/sidebar.js"></script>
   <script src="/js/main.js"></script>
   <script src="/js/table.js"></script>

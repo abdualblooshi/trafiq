@@ -1,0 +1,107 @@
+<div class="flex-1 min-h-screen bg-slate-900 p-6">
+  <div class="max-w-7xl mx-auto space-y-6">
+    <!-- Header Section -->
+    <div class="bg-slate-800 rounded-lg p-6 shadow-xl">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-bold text-white">Traffic Incidents Analysis</h1>
+          <p class="text-gray-400 mt-1">Interactive circle packing visualization of traffic incidents</p>
+        </div>
+        <div class="flex gap-4">
+          <!-- Time Range Selector -->
+          <select id="timeRange" class="bg-slate-700 text-white px-4 py-2 rounded border border-slate-600">
+            <option value="all">All Time</option>
+            <option value="year">Past Year</option>
+            <option value="month">Past Month</option>
+            <option value="week">Past Week</option>
+          </select>
+          <!-- Grouping Selector -->
+          <select id="groupingSelect" class="bg-slate-700 text-white px-4 py-2 rounded border border-slate-600">
+            <option value="type">Group by Type</option>
+            <option value="severity">Group by Severity</option>
+            <option value="location">Group by Location</option>
+            <option value="time">Group by Time</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Visualization Section -->
+    <div class="grid grid-cols-3 gap-6">
+      <!-- Circle Packing Visualization -->
+      <div class="col-span-2 bg-slate-800 rounded-lg p-6 shadow-xl">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold text-white">Incident Distribution</h2>
+          <button id="resetButton" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+            Reset View
+          </button>
+        </div>
+        <div id="circlePacking" class="w-full h-[600px] bg-slate-800">
+          <!-- Vega-Lite visualization will be embedded here -->
+        </div>
+      </div>
+
+      <!-- Statistics Panel -->
+      <div class="bg-slate-800 rounded-lg p-6 shadow-xl">
+        <h2 class="text-xl font-semibold text-white mb-4">Statistics</h2>
+        <div class="space-y-4">
+          <!-- Total Incidents -->
+          <div class="bg-slate-700 p-4 rounded-lg">
+            <div class="text-gray-400 text-sm">Total Incidents</div>
+            <div class="text-2xl font-bold text-white" id="totalIncidents">Loading...</div>
+          </div>
+          <!-- Severity Distribution -->
+          <div class="bg-slate-700 p-4 rounded-lg">
+            <div class="text-gray-400 text-sm">Severity Distribution</div>
+            <div class="mt-2 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-red-400">Severe</span>
+                <span class="text-white font-bold" id="severeCount">Loading...</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-green-400">Minor</span>
+                <span class="text-white font-bold" id="minorCount">Loading...</span>
+              </div>
+            </div>
+          </div>
+          <!-- Top Incident Types -->
+          <div class="bg-slate-700 p-4 rounded-lg">
+            <div class="text-gray-400 text-sm mb-2">Top Incident Types</div>
+            <div id="topTypes" class="space-y-2">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend and Information -->
+    <div class="bg-slate-800 rounded-lg p-6 shadow-xl">
+      <h3 class="text-lg font-semibold text-white mb-4">How to Use This Visualization</h3>
+      <div class="grid grid-cols-2 gap-6">
+        <div class="space-y-2 text-gray-300">
+          <h4 class="font-semibold text-white">Interaction Guide</h4>
+          <ul class="list-disc list-inside space-y-1">
+            <li>Click on circles to zoom in and explore subgroups</li>
+            <li>Use the dropdown menus to change time range and grouping</li>
+            <li>Hover over circles to see detailed information</li>
+            <li>Click the reset button to return to the original view</li>
+          </ul>
+        </div>
+        <div class="space-y-2 text-gray-300">
+          <h4 class="font-semibold text-white">Color Coding</h4>
+          <div class="space-y-1">
+            <div class="flex items-center">
+              <div class="w-4 h-4 rounded-full bg-red-500 mr-2"></div>
+              <span>Severe Incidents</span>
+            </div>
+            <div class="flex items-center">
+              <div class="w-4 h-4 rounded-full bg-green-500 mr-2"></div>
+              <span>Minor Incidents</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

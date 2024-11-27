@@ -1,0 +1,201 @@
+<!-- views/dashboard.ejs -->
+<div class="flex-1 p-6 bg-gray-100">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header with Title -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-800">Trafiq - Traffic Incidents Report</h1>
+      <p class="text-gray-600">Real-time Traffic Analytics Dashboard</p>
+    </div>
+
+    <!-- Main Grid Layout -->
+    <div class="grid grid-cols-12 gap-4">
+      <!-- Stats Cards -->
+      <div class="col-span-3 bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+        <h2 class="text-4xl font-bold mb-2 text-blue-600" id="totalIncidents">0</h2>
+        <p class="text-gray-600">Total Incidents</p>
+      </div>
+
+      <div class="col-span-9 bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-xl font-semibold mb-2" id="dateRange">Loading date range...</h2>
+            <p class="text-gray-600">Date Range Selected</p>
+          </div>
+          <div class="flex gap-2">
+            <input type="date" id="startDate" class="rounded border-gray-300">
+            <input type="date" id="endDate" class="rounded border-gray-300">
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Filters -->
+      <div class="col-span-3 space-y-4">
+        <div class="bg-white p-4 rounded-lg shadow">
+          <label class="block text-sm font-medium text-gray-700">Severity Level</label>
+          <select class="mt-1 block w-full rounded-md border-gray-300" id="severityFilter">
+            <option value="all">All Levels</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow">
+          <label class="block text-sm font-medium text-gray-700">Incident Type</label>
+          <select class="mt-1 block w-full rounded-md border-gray-300" id="typeFilter">
+            <option value="all">All Types</option>
+          </select>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow">
+          <label class="block text-sm font-medium text-gray-700">Time Period</label>
+          <select class="mt-1 block w-full rounded-md border-gray-300" id="timeFilter">
+            <option value="all">All Times</option>
+            <option value="morning">Morning (6AM-12PM)</option>
+            <option value="afternoon">Afternoon (12PM-6PM)</option>
+            <option value="evening">Evening (6PM-12AM)</option>
+            <option value="night">Night (12AM-6AM)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Main Charts Section -->
+      <div class="col-span-9 grid gap-4">
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="text-xl font-semibold mb-4">Incident Types Distribution</h3>
+          <div class="h-[300px]">
+            <canvas id="incidentTypesChart"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="text-xl font-semibold mb-4">Hourly Distribution</h3>
+          <div class="h-[300px]">
+            <canvas id="hourlyDistributionChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row Charts -->
+      <div class="col-span-12 grid grid-cols-3 gap-4">
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="text-xl font-semibold mb-4">Severity Distribution</h3>
+          <div class="h-[250px]">
+            <canvas id="severityChart"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="text-xl font-semibold mb-4">Monthly Trends</h3>
+          <div class="h-[250px]">
+            <canvas id="monthlyTrendChart"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="text-xl font-semibold mb-4">Geographic Heatmap</h3>
+          <div id="map" class="h-[250px]"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet.heat.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const dataManager = new DataManager();
+      const incidents = await dataManager.loadData();
+
+      // Update total incidents count with animation
+      const totalElement = document.getElementById('totalIncidents');
+      animateValue(totalElement, 0, incidents.length, 2000);
+
+      // Initialize all charts
+      initializeCharts(incidents);
+
+      // Setup filter listeners
+      setupFilterListeners(incidents);
+
+      // Initialize map
+      initializeMap(incidents);
+
+    } catch (error) {
+      console.error('Dashboard initialization error:', error);
+    }
+  });
+
+  function initializeCharts(incidents) {
+    const charts = {
+      incidentTypes: new Chart(document.getElementById('incidentTypesChart').getContext('2d'), {
+        type: 'bar',
+        data: processIncidentTypesData(incidents),
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      }),
+
+      hourlyDistribution: new Chart(document.getElementById('hourlyDistributionChart').getContext('2d'), {
+        type: 'line',
+        data: processHourlyData(incidents),
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      }),
+
+      severity: new Chart(document.getElementById('severityChart').getContext('2d'), {
+        type: 'doughnut',
+        data: processSeverityData(incidents),
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      }),
+
+      monthlyTrend: new Chart(document.getElementById('monthlyTrendChart').getContext('2d'), {
+        type: 'line',
+        data: processMonthlyData(incidents),
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      })
+    };
+
+    return charts;
+  }
+
+  function setupFilterListeners(incidents) {
+    const filters = ['severity', 'type', 'time'];
+    filters.forEach(filter => {
+      document.getElementById(`${filter}Filter`).addEventListener('change', (e) => {
+        updateChartsWithFilters(incidents);
+      });
+    });
+  }
+
+  function initializeMap(incidents) {
+    const map = L.map('map').setView([25.2048, 55.2708], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    const points = incidents.map(incident => [
+      incident.latitude,
+      incident.longitude,
+      1
+    ]);
+
+    L.heatLayer(points).addTo(map);
+  }
+</script>

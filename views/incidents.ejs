@@ -1,0 +1,35 @@
+<div class="flex-1 min-h-screen bg-slate-900 p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 gap-6">
+      <!-- Visualization Container -->
+      <div class="bg-slate-800 p-6 rounded-lg shadow-xl">
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <div>
+              <h2 class="text-xl font-semibold text-white">Traffic Incidents Calendar & Clock View</h2>
+              <p class="text-gray-400 text-sm mt-1">Click on dates to see incident details and animate through time</p>
+            </div>
+          </div>
+
+          <div id="vegaLiteContainer" class="w-full min-h-[1200px] bg-slate-800">
+            <!-- Vega-Lite visualization will be embedded here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend and Information -->
+      <div class="bg-slate-800 p-6 rounded-lg shadow-xl">
+        <h3 class="text-lg font-semibold text-white mb-4">How to Use This Visualization</h3>
+        <div class="text-gray-300 space-y-2">
+          <p>This interactive visualization combines multiple views to explore traffic incidents:</p>
+          <p>1. The calendar heatmap shows daily incident counts throughout the year</p>
+          <p>2. Click on any day to see detailed incidents in the clock view</p>
+          <p>3. Use the animation controls to see incidents unfold over time</p>
+          <p>4. The treemap below shows the distribution of incident types</p>
+          <p>5. Customize the visualization using the controls on the right</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
