@@ -5,8 +5,56 @@ class ScrollManager {
     this.currentStep = null;
     this.scroller = scrollama();
     this.progressThreshold = 50;
-    this.chartInstances = []; // Track chart instances for cleanup
-    this.chartData = null; // Cache for chart data
+    this.chartInstances = [];
+    this.chartData = null;
+    this.colorScheme = {
+      severe: "#ff0000",
+      minor: "#ffa500",
+    };
+  }
+
+  updateColorScheme(newColors) {
+    console.log("Updating chart colors to:", newColors);
+    this.colorScheme = { ...this.colorScheme, ...newColors };
+
+    // Update existing charts
+    this.chartInstances.forEach((chart) => {
+      if (chart.config.type === "doughnut") {
+        // Update pie/doughnut chart colors
+        chart.data.datasets[0].backgroundColor = [
+          this.colorScheme.severe,
+          this.colorScheme.minor,
+        ];
+      } else if (chart.config.type === "line") {
+        // Update line chart colors
+        chart.data.datasets[0].borderColor = this.colorScheme.severe;
+        chart.data.datasets[0].backgroundColor = this.hexToRGBA(
+          this.colorScheme.severe,
+          0.1
+        );
+        chart.data.datasets[1].borderColor = this.colorScheme.minor;
+        chart.data.datasets[1].backgroundColor = this.hexToRGBA(
+          this.colorScheme.minor,
+          0.1
+        );
+      }
+
+      // Force chart update
+      chart.update("none"); // Use 'none' for better performance
+    });
+  }
+
+  // Helper function to convert hex to rgba
+  hexToRGBA(hex, alpha) {
+    try {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    } catch (error) {
+      console.error("Error converting hex to rgba:", error);
+      return `rgba(0, 0, 0, ${alpha})`;
+    }
   }
 
   async initialize() {
@@ -92,7 +140,6 @@ class ScrollManager {
     }
 
     try {
-      // Use the existing processed data from dataManager instead of fetching again
       const incidents = this.dataManager.processedData;
 
       if (!incidents || !Array.isArray(incidents)) {
@@ -101,24 +148,19 @@ class ScrollManager {
 
       console.log("Processing incidents for charts:", incidents.length);
 
-      // Process monthly data
       const monthlyData = {};
       const severityData = { severe: 0, minor: 0 };
 
       incidents.forEach((incident) => {
-        // Update severity counts
         severityData[incident.severity]++;
 
-        // Create date object from incident time
         const incidentDate = new Date(incident.acci_time);
 
-        // Skip invalid dates
         if (isNaN(incidentDate.getTime())) {
           console.warn("Invalid date:", incident.acci_time);
           return;
         }
 
-        // Update monthly data
         const monthKey = incidentDate.toLocaleString("en-US", {
           month: "short",
           year: "2-digit",
@@ -206,7 +248,10 @@ class ScrollManager {
                 datasets: [
                   {
                     data: [severityData.severe, severityData.minor],
-                    backgroundColor: ["#ef4444", "#f97316"],
+                    backgroundColor: [
+                      this.colorScheme.severe,
+                      this.colorScheme.minor,
+                    ],
                     borderWidth: 2,
                     borderColor: "#1f2937",
                   },
@@ -234,16 +279,22 @@ class ScrollManager {
                   {
                     label: "Severe Incidents",
                     data: months.map((m) => monthlyData[m].severe),
-                    borderColor: "#ef4444",
-                    backgroundColor: "rgba(239, 68, 68, 0.1)",
+                    borderColor: this.colorScheme.severe,
+                    backgroundColor: this.hexToRGBA(
+                      this.colorScheme.severe,
+                      0.1
+                    ),
                     tension: 0.4,
                     fill: true,
                   },
                   {
                     label: "Minor Incidents",
                     data: months.map((m) => monthlyData[m].minor),
-                    borderColor: "#f97316",
-                    backgroundColor: "rgba(249, 115, 22, 0.1)",
+                    borderColor: this.colorScheme.minor,
+                    backgroundColor: this.hexToRGBA(
+                      this.colorScheme.minor,
+                      0.1
+                    ),
                     tension: 0.4,
                     fill: true,
                   },
@@ -435,6 +486,18 @@ class ScrollManager {
       this.map.on("load", () => {
         console.log("Map loaded");
         this.addDataLayers();
+
+        // Apply saved settings if they exist
+        const savedSettings = localStorage.getItem("accessibilitySettings");
+        if (savedSettings) {
+          const settings = JSON.parse(savedSettings);
+          if (settings.pointSize) {
+            this.updatePointStyle(settings.pointSize, settings.pointOpacity);
+          }
+          if (settings.mapStyle) {
+            this.updateMapStyle(settings.mapStyle);
+          }
+        }
       });
 
       this.map.addControl(new mapboxgl.NavigationControl(), "top-right");
