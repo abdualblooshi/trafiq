@@ -54,6 +54,32 @@ app.get("/mapbox-token", (req, res) => {
   res.json({ token: mapboxToken });
 });
 
+const axios = require("axios");
+
+// Weather API endpoint
+app.get("/api/weather", async (req, res) => {
+  try {
+    const response = await axios.get(
+      `https://api.openweathermap.org/data/2.5/weather?q=Dubai&units=metric&appid=${process.env.OPENWEATHER_API_KEY}`
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Weather forecast endpoint
+app.get("/api/weather/forecast", async (req, res) => {
+  try {
+    const response = await axios.get(
+      `https://api.openweathermap.org/data/2.5/forecast?q=Dubai&units=metric&appid=${process.env.OPENWEATHER_API_KEY}`
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get("/", async (req, res) => {
   try {
     const dataController = require("./controllers/dataController");
@@ -95,7 +121,7 @@ app.get("/story-map", async (req, res) => {
   try {
     const dataController = require("./controllers/dataController");
     const incidents = await dataController.getIncidents();
-    res.render("index", {
+    res.render("story-map", {
       title: "Story Map",
       active: "story-map",
       incidents,
@@ -103,6 +129,67 @@ app.get("/story-map", async (req, res) => {
   } catch (error) {
     res.render("error", {
       title: "Error",
+      error,
+    });
+  }
+});
+
+app.get("/trends", async (req, res) => {
+  populationData = {
+    years: [
+      "1975",
+      "1980",
+      "1985",
+      "1993",
+      "1995",
+      "2000",
+      "2005",
+      "2006",
+      "2007",
+      "2008",
+      "2009",
+      "2010",
+      "2011",
+      "2012",
+      "2013",
+      "2014",
+      "2015",
+      "2016",
+      "2017",
+      "2018",
+      "2019",
+      "2020",
+      "2021",
+      "2022",
+      "2023",
+    ],
+    males: [
+      128821, 187714, 247179, 406128, 478209, 611799, 989305, 1073485, 1164576,
+      1263130, 1369740, 1485046, 1515770, 1547135, 1579145, 1613175, 1703355,
+      1888520, 2088870, 2233390, 2331800, 2362255, 2400100, 2438780, 2507200,
+    ],
+    females: [
+      54366, 88587, 123609, 204798, 211211, 250588, 332148, 348327, 365216,
+      382843, 401238, 420430, 487400, 558740, 634700, 714175, 743320, 810080,
+      887585, 958885, 1024100, 1048945, 1078200, 1111120, 1147800,
+    ],
+    total: [
+      183187, 276301, 370788, 610926, 689420, 862387, 1321453, 1421812, 1529792,
+      1645973, 1770978, 1905476, 2003170, 2105875, 2213845, 2327350, 2446675,
+      2698600, 2976455, 3192275, 3355900, 3411200, 3478300, 3549900, 3655000,
+    ],
+  };
+
+  try {
+    res.render("trends", {
+      title: "Population & Traffic Trends",
+      active: "trends",
+      populationData: populationData,
+    });
+  } catch (error) {
+    res.render("error", {
+      title: "Error",
+      active: "trends",
       error,
     });
   }

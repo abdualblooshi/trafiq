@@ -5,6 +5,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     await dataManager.loadData();
     console.log("Data loaded successfully");
 
+    // Initialize trending manager if we're on the trends page
+    if (document.getElementById("debugOutput")) {
+      const trendingManager = new TrendingManager();
+      console.log("Trending manager initialized");
+    }
+
     // Initialize scroll manager only if we're on a page that needs it
     let scrollManager;
     if (document.getElementById("map")) {
@@ -23,9 +29,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       );
       window.accessibilityManager = accessibilityManager;
     }
-
-    // Initialize sidebar
-    const sidebar = new Sidebar(dataManager);
 
     console.log("All managers initialized successfully");
   } catch (error) {

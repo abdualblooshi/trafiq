@@ -1,30 +1,253 @@
-<div class="flex-1">
-  <div id="map"></div>
+<!-- dashboard.ejs -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+  <!-- Weather Overview Card -->
+  <div class="col-span-1 bg-gray-800 rounded-lg p-6 shadow-lg">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold">Current Weather</h2>
+      <div id="weather-icon" class="text-4xl"></div>
+    </div>
+    <div id="current-weather" class="space-y-2">
+      <!-- Weather data will be injected here -->
+    </div>
+  </div>
 
-  <div id="story-container">
-    <div class="story-sections">
-      <div class="story-step" data-step="intro" data-location="25.2048,55.2708,11">
-        <div class="story-step-content">
-          <h2 class="text-3xl font-bold mb-4">Traffic Incidents in Dubai</h2>
-          <p class="text-lg">Scroll to explore how traffic incidents evolved and their impact on the city.</p>
-        </div>
-      </div>
+  <!-- Traffic Overview Card -->
+  <div class="col-span-1 bg-gray-800 rounded-lg p-6 shadow-lg">
+    <h2 class="text-xl font-bold mb-4">Traffic Overview</h2>
+    <div id="traffic-stats" class="grid grid-cols-2 gap-4">
+      <!-- Traffic stats will be injected here -->
+    </div>
+  </div>
 
-      <div class="story-step" data-step="downtown" data-location="25.1972,55.2744,14">
-        <div class="story-step-content">
-          <h3 class="text-2xl font-bold mb-4">Downtown Dubai</h3>
-          <p class="text-lg">The downtown area shows a significant concentration of incidents...</p>
-        </div>
-      </div>
+  <!-- Weather Forecast Card -->
+  <div class="col-span-1 bg-gray-800 rounded-lg p-6 shadow-lg">
+    <h2 class="text-xl font-bold mb-4">5-Day Forecast</h2>
+    <div id="weather-forecast" class="space-y-2">
+      <!-- Forecast data will be injected here -->
+    </div>
+  </div>
 
-      <div class="story-step" data-step="marina" data-location="25.0806,55.1417,15">
-        <div class="story-step-content">
-          <h3 class="text-2xl font-bold mb-4">Dubai Marina</h3>
-          <p class="text-lg">The Marina area demonstrates unique traffic patterns...</p>
-        </div>
-      </div>
+  <!-- Weather-Traffic Correlation -->
+  <div class="col-span-2 bg-gray-800 rounded-lg p-6 shadow-lg">
+    <h2 class="text-xl font-bold mb-4">Weather Impact on Traffic</h2>
+    <div class="h-80" id="correlation-chart"></div>
+  </div>
+
+  <!-- Hourly Distribution -->
+  <div class="col-span-1 bg-gray-800 rounded-lg p-6 shadow-lg">
+    <h2 class="text-xl font-bold mb-4">Hourly Incident Distribution</h2>
+    <div class="h-60" id="hourly-chart"></div>
+  </div>
+
+  <!-- Interactive Map -->
+  <div class="col-span-3 bg-gray-800 rounded-lg p-6 shadow-lg">
+    <h2 class="text-xl font-bold mb-4">Interactive Map View</h2>
+    <div class="h-96" id="dashboard-map"></div>
+    <div class="mt-4 flex gap-4" id="map-filters">
+      <!-- Map filters will be added here -->
+    </div>
+  </div>
+
+  <!-- Detail Charts Row -->
+  <div class="col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Severity by Weather -->
+    <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
+      <h2 class="text-xl font-bold mb-4">Incident Severity by Weather</h2>
+      <div class="h-60" id="severity-weather-chart"></div>
+    </div>
+
+    <!-- Time Analysis -->
+    <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
+      <h2 class="text-xl font-bold mb-4">Time-based Analysis</h2>
+      <div class="h-60" id="time-analysis-chart"></div>
     </div>
   </div>
 </div>
 
-<%- include('partials/modals') %>
+<!-- Add necessary JavaScript -->
+<script>
+  class DashboardManager {
+    constructor() {
+      this.weatherData = null;
+      this.trafficData = null;
+      this.charts = {};
+      this.initialize();
+    }
+
+    async initialize() {
+      await Promise.all([
+        this.fetchWeatherData(),
+        this.fetchTrafficData()
+      ]);
+      this.setupCharts();
+      this.setupInteractions();
+    }
+
+    async fetchWeatherData() {
+      try {
+        const response = await fetch(`/api/weather`);
+        this.weatherData = await response.json();
+        this.updateWeatherUI();
+      } catch (error) {
+        console.error('Error fetching weather data:', error);
+      }
+    }
+
+    async fetchTrafficData() {
+      try {
+        const response = await fetch('/api/incidents');
+        this.trafficData = await response.json();
+        this.updateTrafficUI();
+      } catch (error) {
+        console.error('Error fetching traffic data:', error);
+      }
+    }
+
+    updateWeatherUI() {
+      const currentWeather = document.getElementById('current-weather');
+      if (!this.weatherData) return;
+
+      const {
+        main,
+        weather
+      } = this.weatherData;
+      currentWeather.innerHTML = `
+      <div class="flex justify-between items-center">
+        <div>
+          <p class="text-3xl font-bold">${Math.round(main.temp)}°C</p>
+          <p class="text-gray-400">${weather[0].description}</p>
+        </div>
+        <img src="http://openweathermap.org/img/w/${weather[0].icon}.png" alt="Weather icon">
+      </div>
+      <div class="grid grid-cols-2 gap-4 mt-4">
+        <div>
+          <p class="text-gray-400">Humidity</p>
+          <p class="text-xl">${main.humidity}%</p>
+        </div>
+        <div>
+          <p class="text-gray-400">Wind</p>
+          <p class="text-xl">${this.weatherData.wind.speed} m/s</p>
+        </div>
+      </div>
+    `;
+    }
+
+    setupCharts() {
+      // Correlation Chart
+      this.charts.correlation = new Chart(
+        document.getElementById('correlation-chart').getContext('2d'), {
+          type: 'scatter',
+          data: this.prepareCorrelationData(),
+          options: {
+            responsive: true,
+            plugins: {
+              title: {
+                display: true,
+                text: 'Temperature vs. Incident Count'
+              }
+            },
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: 'Temperature (°C)'
+                }
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'Number of Incidents'
+                }
+              }
+            }
+          }
+        }
+      );
+
+      // Hourly Distribution Chart
+      this.charts.hourly = new Chart(
+        document.getElementById('hourly-chart').getContext('2d'), {
+          type: 'bar',
+          data: this.prepareHourlyData(),
+          options: {
+            responsive: true,
+            plugins: {
+              title: {
+                display: true,
+                text: 'Hourly Incident Distribution'
+              }
+            }
+          }
+        }
+      );
+
+      // Initialize other charts...
+    }
+
+    prepareCorrelationData() {
+      // Combine weather and traffic data to show correlation
+      return {
+        datasets: [{
+          label: 'Incidents vs Temperature',
+          data: this.combineWeatherTrafficData(),
+          backgroundColor: 'rgba(75, 192, 192, 0.5)'
+        }]
+      };
+    }
+
+    prepareHourlyData() {
+      // Process traffic data by hour
+      const hourlyData = new Array(24).fill(0);
+      this.trafficData?.forEach(incident => {
+        const hour = new Date(incident.acci_time).getHours();
+        hourlyData[hour]++;
+      });
+
+      return {
+        labels: Array.from({
+          length: 24
+        }, (_, i) => `${i}:00`),
+        datasets: [{
+          label: 'Incidents',
+          data: hourlyData,
+          backgroundColor: 'rgba(54, 162, 235, 0.5)'
+        }]
+      };
+    }
+
+    setupInteractions() {
+      // Add click handlers for charts
+      Object.values(this.charts).forEach(chart => {
+        chart.canvas.onclick = (evt) => {
+          const points = chart.getElementsAtEventForMode(evt, 'nearest', {
+            intersect: true
+          }, true);
+          if (points.length) {
+            this.handleChartClick(chart, points[0]);
+          }
+        };
+      });
+    }
+
+    handleChartClick(chart, point) {
+      // Update other visualizations based on selection
+      const dataIndex = point.index;
+      this.updateLinkedVisualizations(chart.id, dataIndex);
+    }
+
+    updateLinkedVisualizations(sourceChartId, dataIndex) {
+      // Update other charts based on selection
+      Object.entries(this.charts).forEach(([id, chart]) => {
+        if (id !== sourceChartId) {
+          // Update chart based on selection
+          this.updateChartData(chart, sourceChartId, dataIndex);
+        }
+      });
+    }
+  }
+
+  // Initialize dashboard when document is ready
+  document.addEventListener('DOMContentLoaded', () => {
+    new DashboardManager();
+  });
+</script>

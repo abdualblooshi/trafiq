@@ -1,0 +1,40 @@
+<!-- views/trends.ejs -->
+<div class="flex-1 p-6 bg-gray-900">
+  <div class="max-w-7xl mx-auto">
+    <!-- Debug Info -->
+    <div id="debugInfo" class="hidden mb-4 p-4 bg-gray-800 rounded text-white">
+      <h3 class="font-bold mb-2">Debug Information:</h3>
+      <pre id="debugOutput" class="whitespace-pre-wrap"></pre>
+    </div>
+
+    <!-- Visualization Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Hourly Distribution Chart -->
+      <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
+        <h2 class="text-xl font-semibold text-white mb-4">Incident Distribution by Hour</h2>
+        <div class="relative h-[400px]">
+          <canvas id="hourlyChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Severity Distribution Chart -->
+      <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
+        <h2 class="text-xl font-semibold text-white mb-4">Severity Analysis</h2>
+        <div class="relative h-[400px]">
+          <canvas id="severityChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Location Heat Map -->
+      <div class="bg-gray-800 rounded-lg p-6 shadow-lg lg:col-span-2">
+        <h2 class="text-xl font-semibold text-white mb-4">Geographic Distribution by Time</h2>
+        <div class="relative h-[500px]">
+          <canvas id="locationChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/js/dataManager.js"></script>
