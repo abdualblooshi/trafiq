@@ -6,6 +6,7 @@ class ScrollManager {
     this.scroller = scrollama();
     this.progressThreshold = 50;
     this.chartInstances = []; // Track chart instances for cleanup
+    this.chartData = null; // Cache for chart data
   }
 
   async initialize() {
@@ -85,94 +86,44 @@ class ScrollManager {
     }
   }
 
-  async setupCharts(chartContainers) {
-    // Add loading indicator
-    chartContainers.forEach((container) => {
-      container.innerHTML = '<div class="loading">Loading chart data...</div>';
-    });
-
-    // Clean up any existing chart instances
-    this.chartInstances.forEach((chart) => chart.destroy());
-    this.chartInstances = [];
-
-    // Add styles for chart containers
-    const style = document.createElement("style");
-    style.textContent = `
-      .chart-container {
-        min-height: 300px;
-        position: relative;
-        background: rgba(0,0,0,0.2);
-        padding: 1rem;
-        border-radius: 8px;
-      }
-      .loading, .error {
-        color: white;
-        text-align: center;
-        padding: 2rem;
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Check if Chart.js is loaded
-    if (typeof Chart === "undefined") {
-      console.error("Chart.js is not loaded");
-      return;
+  async fetchAndProcessData() {
+    if (this.chartData) {
+      return this.chartData;
     }
 
-    Chart.defaults.color = "#fff";
-    Chart.defaults.borderColor = "rgba(255,255,255,0.1)";
-
     try {
-      const response = await fetch(
-        "https://raw.githubusercontent.com/sheriefAbdallah/CS318/refs/heads/main/Traffic_Incidents.csv"
-      );
-      if (!response.ok) throw new Error("Failed to fetch data");
+      // Use the existing processed data from dataManager instead of fetching again
+      const incidents = this.dataManager.processedData;
 
-      const csvText = await response.text();
-      if (!csvText) throw new Error("Empty CSV data");
+      if (!incidents || !Array.isArray(incidents)) {
+        throw new Error("No incident data available from dataManager");
+      }
 
-      // Log sample of CSV data
-      console.log("CSV sample:", csvText.split("\n").slice(0, 3));
-
-      const rows = csvText.split("\n").slice(1); // Skip header row
-
-      // Parse CSV with validation and handle Arabic text
-      const incidents = rows
-        .map((row) => {
-          const [id, time, desc, lat, lng, severity, status] = row.split(",");
-          let normalizedSeverity = "minor"; // Default to minor
-
-          // Check for Arabic text variations of severe/minor
-          if (severity) {
-            const severityLower = severity.toLowerCase().trim();
-            if (
-              severityLower.includes("شديد") ||
-              severityLower.includes("خطير") ||
-              severityLower === "severe"
-            ) {
-              normalizedSeverity = "severe";
-            }
-          }
-
-          if (!time || isNaN(new Date(time))) {
-            console.warn("Invalid time for incident:", row);
-            return null;
-          }
-
-          return {
-            time: new Date(time),
-            severity: normalizedSeverity,
-          };
-        })
-        .filter((incident) => incident !== null);
+      console.log("Processing incidents for charts:", incidents.length);
 
       // Process monthly data
       const monthlyData = {};
+      const severityData = { severe: 0, minor: 0 };
+
       incidents.forEach((incident) => {
-        const monthKey = incident.time.toLocaleString("en-US", {
+        // Update severity counts
+        severityData[incident.severity]++;
+
+        // Create date object from incident time
+        const incidentDate = new Date(incident.acci_time);
+
+        // Skip invalid dates
+        if (isNaN(incidentDate.getTime())) {
+          console.warn("Invalid date:", incident.acci_time);
+          return;
+        }
+
+        // Update monthly data
+        const monthKey = incidentDate.toLocaleString("en-US", {
           month: "short",
           year: "2-digit",
         });
+
         if (!monthlyData[monthKey]) {
           monthlyData[monthKey] = {
             severe: 0,
@@ -182,70 +133,100 @@ class ScrollManager {
         monthlyData[monthKey][incident.severity]++;
       });
 
-      chartContainers.forEach((container, index) => {
+      console.log("Processed chart data:", {
+        monthlyData: Object.keys(monthlyData).length,
+        severityData,
+      });
+
+      this.chartData = {
+        monthlyData,
+        severityData,
+      };
+
+      return this.chartData;
+    } catch (error) {
+      console.error("Error processing data for charts:", error);
+      throw error;
+    }
+  }
+
+  async setupCharts(chartContainers) {
+    if (typeof Chart === "undefined") {
+      console.error("Chart.js not loaded");
+      chartContainers.forEach((container) => {
+        container.innerHTML =
+          '<div class="error">Chart.js library not available</div>';
+      });
+      return;
+    }
+
+    chartContainers.forEach((container) => {
+      container.innerHTML = '<div class="loading">Loading chart data...</div>';
+    });
+
+    try {
+      const data = await this.fetchAndProcessData();
+      console.log("Chart data received:", data);
+
+      if (!data || !data.severityData) {
+        throw new Error("Invalid chart data structure");
+      }
+
+      Chart.defaults.color = "#fff";
+      Chart.defaults.borderColor = "rgba(255,255,255,0.1)";
+
+      chartContainers.forEach((container) => {
         try {
           const chartType = container.dataset.chartType;
-          const ctx = document.createElement("canvas");
+          const canvas = document.createElement("canvas");
+          container.innerHTML = "";
+          container.appendChild(canvas);
+          const ctx = canvas.getContext("2d");
 
-          if (!ctx.getContext) {
-            console.error("Canvas context not available");
-            return;
+          if (!ctx) {
+            throw new Error("Could not get canvas context");
           }
 
-          container.innerHTML = "";
-          container.appendChild(ctx);
-
-          let newChart;
-
           if (chartType === "pie") {
-            const severityData = {
-              severe:
-                incidents.filter((i) => i.severity === "severe").length || 0,
-              minor:
-                incidents.filter((i) => i.severity === "minor").length || 0,
-            };
+            const { severityData } = data;
+            const total = severityData.severe + severityData.minor;
 
-            console.log("Pie chart data:", severityData);
+            console.log("Creating pie chart with data:", severityData);
 
-            if (severityData.severe === 0 && severityData.minor === 0) {
+            if (total === 0) {
               container.innerHTML =
-                '<div class="error">No valid severity data available</div>';
+                '<div class="error">No incident data available</div>';
               return;
             }
 
-            newChart = new Chart(ctx, {
-              type: "pie",
+            const pieChart = new Chart(ctx, {
+              type: "doughnut",
               data: {
-                labels: ["Severe", "Minor"],
+                labels: ["Severe Incidents", "Minor Incidents"],
                 datasets: [
                   {
                     data: [severityData.severe, severityData.minor],
-                    backgroundColor: ["#ff0000", "#ffa500"],
+                    backgroundColor: ["#ef4444", "#f97316"],
+                    borderWidth: 2,
+                    borderColor: "#1f2937",
                   },
                 ],
               },
               options: {
                 responsive: true,
-                plugins: {
-                  title: {
-                    display: true,
-                    text: "Distribution of Incident Severity",
-                    color: "#fff",
-                    font: { size: 16 },
-                  },
-                  legend: {
-                    position: "bottom",
-                    labels: { color: "#fff", padding: 20 },
-                  },
-                },
+                maintainAspectRatio: false,
               },
             });
+            this.chartInstances.push(pieChart);
           } else if (chartType === "line") {
-            const months = Object.keys(monthlyData).sort((a, b) => {
-              return new Date("1 " + a) - new Date("1 " + b);
-            });
+            const { monthlyData } = data;
+            const months = Object.keys(monthlyData).sort(
+              (a, b) => new Date("1 " + a) - new Date("1 " + b)
+            );
 
-            newChart = new Chart(ctx, {
+            console.log("Creating line chart with months:", months);
+
+            const lineChart = new Chart(ctx, {
               type: "line",
               data: {
                 labels: months,
@@ -253,65 +234,40 @@ class ScrollManager {
                   {
                     label: "Severe Incidents",
                     data: months.map((m) => monthlyData[m].severe),
-                    borderColor: "#ff0000",
-                    tension: 0.3,
-                    fill: false,
+                    borderColor: "#ef4444",
+                    backgroundColor: "rgba(239, 68, 68, 0.1)",
+                    tension: 0.4,
+                    fill: true,
                   },
                   {
                     label: "Minor Incidents",
                     data: months.map((m) => monthlyData[m].minor),
-                    borderColor: "#ffa500",
-                    tension: 0.3,
-                    fill: false,
+                    borderColor: "#f97316",
+                    backgroundColor: "rgba(249, 115, 22, 0.1)",
+                    tension: 0.4,
+                    fill: true,
                   },
                 ],
               },
               options: {
                 responsive: true,
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    grid: { color: "rgba(255,255,255,0.1)" },
-                    ticks: { color: "#fff" },
-                    title: {
-                      display: true,
-                      text: "Number of Incidents",
-                      color: "#fff",
-                    },
-                  },
-                  x: {
-                    grid: { color: "rgba(255,255,255,0.1)" },
-                    ticks: { color: "#fff" },
-                  },
-                },
-                plugins: {
-                  title: {
-                    display: true,
-                    text: "Incidents Over Time",
-                    color: "#fff",
-                    font: { size: 16 },
-                  },
-                  legend: {
-                    position: "bottom",
-                    labels: { color: "#fff", padding: 20 },
-                  },
-                },
+                maintainAspectRatio: false,
               },
             });
-          }
-
-          if (newChart) {
-            this.chartInstances.push(newChart);
+            this.chartInstances.push(lineChart);
           }
         } catch (error) {
-          console.error(`Error setting up chart ${index}:`, error);
+          console.error(
+            `Error creating ${container.dataset.chartType} chart:`,
+            error
+          );
           container.innerHTML = `<div class="error">Error creating chart: ${error.message}</div>`;
         }
       });
     } catch (error) {
-      console.error("Error fetching or processing CSV data:", error);
+      console.error("Error setting up charts:", error);
       chartContainers.forEach((container) => {
-        container.innerHTML = `<div class="error">Error loading chart: ${error.message}</div>`;
+        container.innerHTML = `<div class="error">Failed to load chart: ${error.message}</div>`;
       });
     }
   }
