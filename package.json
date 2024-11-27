@@ -6,7 +6,7 @@
   "scripts": {
     "build:css": "tailwindcss -i ./src/css/input.css -o ./public/css/styles.css",
     "watch:css": "tailwindcss -i ./src/css/input.css -o ./public/css/styles.css --watch",
-    "build": "pnpm install --frozen-lockfile && node setup.js && pnpm run build:css",
+    "build": "pnpm install --frozen-lockfile && pnpm run build:css",
     "start": "node server/server.js",
     "dev": "nodemon server/server.js & pnpm run watch:css"
   },
