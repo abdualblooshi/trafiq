@@ -1,39 +1,93 @@
 class AccessibilityManager {
-  constructor(dataManager, scrollManager) {
+  constructor(dataManager, scrollManager = null) {
     console.log("Initializing AccessibilityManager", {
       dataManager,
       scrollManager,
     });
     this.dataManager = dataManager;
     this.scrollManager = scrollManager;
-    this.settings = {
-      colorScheme: "default",
-      fontSize: "medium",
-      contrast: "normal",
-      pointSize: "6",
-      pointOpacity: "0.7",
-    };
+
+    // Load settings from localStorage or use defaults
+    this.settings = this.loadSettings();
 
     this.colorSchemes = {
       default: {
         severe: "#FF0000",
         minor: "#FFA500",
+        accent1: "#1f77b4",
+        accent2: "#ff7f0e",
+        accent3: "#2ca02c",
+        accent4: "#d62728",
+        background: "#ffffff",
+        text: "#000000",
       },
       protanopia: {
         severe: "#0000FF",
         minor: "#FFFF00",
+        accent1: "#0000FF",
+        accent2: "#FFFF00",
+        accent3: "#00FFFF",
+        accent4: "#000000",
+        background: "#ffffff",
+        text: "#000000",
       },
       deuteranopia: {
         severe: "#0000FF",
         minor: "#FFFF00",
+        accent1: "#0000FF",
+        accent2: "#FFFF00",
+        accent3: "#00FFFF",
+        accent4: "#000000",
+        background: "#ffffff",
+        text: "#000000",
       },
       tritanopia: {
         severe: "#FF0000",
         minor: "#00FF00",
+        accent1: "#FF0000",
+        accent2: "#00FF00",
+        accent3: "#0000FF",
+        accent4: "#000000",
+        background: "#ffffff",
+        text: "#000000",
       },
     };
 
     this.initEventListeners();
+    this.applyGlobalStyles();
+  }
+
+  loadSettings() {
+    const defaultSettings = {
+      colorScheme: "default",
+      fontSize: "medium",
+      contrast: "normal",
+      pointSize: 6,
+      pointOpacity: 0.7,
+    };
+
+    try {
+      const savedSettings = localStorage.getItem("accessibilitySettings");
+      if (savedSettings) {
+        return { ...defaultSettings, ...JSON.parse(savedSettings) };
+      }
+    } catch (error) {
+      console.error("Error loading settings from localStorage:", error);
+    }
+
+    return defaultSettings;
+  }
+
+  saveSettings() {
+    try {
+      localStorage.setItem(
+        "accessibilitySettings",
+        JSON.stringify(this.settings)
+      );
+      console.log("Settings saved to localStorage");
+    } catch (error) {
+      console.error("Error saving settings to localStorage:", error);
+    }
   }
 
   initEventListeners() {
@@ -50,13 +104,19 @@ class AccessibilityManager {
       console.warn("Accessibility button not found");
     }
 
-    if (mapSettingsBtn) {
+    // Only show map settings on story-map page
+    if (
+      mapSettingsBtn &&
+      this.scrollManager &&
+      window.location.pathname === "/story-map"
+    ) {
       mapSettingsBtn.addEventListener("click", () => {
         console.log("Map settings button clicked");
         this.showMapSettingsModal();
       });
-    } else {
-      console.warn("Map settings button not found");
+      mapSettingsBtn.style.display = "block";
+    } else if (mapSettingsBtn) {
+      mapSettingsBtn.style.display = "none";
     }
   }
 
@@ -101,9 +161,12 @@ class AccessibilityManager {
           </div>
         </div>
 
-        <div class="modal-footer mt-6">
+        <div class="modal-footer mt-6 space-y-2">
           <button id="applySettings" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Apply Settings
+          </button>
+          <button id="resetSettings" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+            Reset to Default
           </button>
         </div>
       </div>
@@ -146,9 +209,12 @@ class AccessibilityManager {
           </div>
         </div>
 
-        <div class="modal-footer mt-6">
+        <div class="modal-footer mt-6 space-y-2">
           <button id="applyMapSettings" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Apply Settings
+          </button>
+          <button id="resetMapSettings" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+            Reset to Default
           </button>
         </div>
       </div>
@@ -168,7 +234,13 @@ class AccessibilityManager {
 
     // Set current values
     console.log("Setting current values:", this.settings);
-    Object.entries(this.settings).forEach(([key, value]) => {
+    const settingsToShow = {
+      colorScheme: this.settings.colorScheme,
+      fontSize: this.settings.fontSize,
+      contrast: this.settings.contrast,
+    };
+
+    Object.entries(settingsToShow).forEach(([key, value]) => {
       const element = document.getElementById(key);
       if (element) {
         element.value = value;
@@ -188,10 +260,61 @@ class AccessibilityManager {
     modal.querySelector("#applySettings").onclick = () => {
       console.log("Applying accessibility settings");
       this.applyAccessibilitySettings();
+      this.applyGlobalStyles();
+    };
+
+    modal.querySelector("#resetSettings").onclick = () => {
+      console.log("Resetting to default settings");
+      this.settings = this.loadSettings();
+      this.applyGlobalStyles();
+      // Close current modal
+      modal.classList.remove("show");
+      setTimeout(() => modal.remove(), 300);
     };
   }
 
+  applyAccessibilitySettings() {
+    console.log("Applying accessibility settings");
+    const colorScheme = document.getElementById("colorScheme")?.value;
+    const fontSize = document.getElementById("fontSize")?.value;
+    const contrast = document.getElementById("contrast")?.value;
+
+    console.log("New accessibility settings:", {
+      colorScheme,
+      fontSize,
+      contrast,
+    });
+
+    // Update settings object while preserving numeric values
+    this.settings = {
+      ...this.settings,
+      colorScheme: colorScheme || this.settings.colorScheme,
+      fontSize: fontSize || this.settings.fontSize,
+      contrast: contrast || this.settings.contrast,
+    };
+
+    // Save settings to localStorage
+    this.saveSettings();
+
+    // Apply the new color scheme immediately
+    this.applyGlobalStyles();
+
+    // Close the modal
+    const modal = document.querySelector(".modal");
+    if (modal) {
+      modal.classList.remove("show");
+      setTimeout(() => modal.remove(), 300);
+    }
+  }
+
   showMapSettingsModal() {
+    if (!this.scrollManager || window.location.pathname !== "/story-map") {
+      console.warn(
+        "Map settings not available - not on story-map page or no ScrollManager"
+      );
+      return;
+    }
+
     console.log("Showing map settings modal");
     const modal = this.createMapSettingsModal();
     document.body.appendChild(modal);
@@ -201,12 +324,12 @@ class AccessibilityManager {
     const pointOpacityInput = modal.querySelector("#pointOpacity");
 
     if (pointSizeInput) {
-      pointSizeInput.value = this.settings.pointSize || "6";
+      pointSizeInput.value = this.settings.pointSize;
       console.log("Set point size to:", pointSizeInput.value);
     }
 
     if (pointOpacityInput) {
-      pointOpacityInput.value = this.settings.pointOpacity || "0.7";
+      pointOpacityInput.value = this.settings.pointOpacity;
       console.log("Set point opacity to:", pointOpacityInput.value);
     }
 
@@ -223,27 +346,125 @@ class AccessibilityManager {
     modal.querySelector("#applyMapSettings").onclick = () => {
       console.log("Applying map settings");
       this.applyMapSettings();
+      // Close the modal after applying settings
+      modal.classList.remove("show");
+      setTimeout(() => modal.remove(), 300);
+    };
+
+    modal.querySelector("#resetMapSettings").onclick = () => {
+      console.log("Resetting to default map settings");
+      const defaultSettings = this.loadSettings();
+      this.settings.pointSize = defaultSettings.pointSize;
+      this.settings.pointOpacity = defaultSettings.pointOpacity;
+      this.applyMapSettings();
+      // Close the modal after resetting settings
+      modal.classList.remove("show");
+      setTimeout(() => modal.remove(), 300);
     };
   }
 
+  applyGlobalStyles() {
+    // Apply color scheme to all visualizations
+    const colors = this.colorSchemes[this.settings.colorScheme];
+
+    // Apply font size
+    document.documentElement.style.setProperty(
+      "--base-font-size",
+      this.settings.fontSize === "small"
+        ? "14px"
+        : this.settings.fontSize === "large"
+          ? "18px"
+          : "16px"
+    );
+
+    // Apply contrast settings
+    if (this.settings.contrast === "high") {
+      document.documentElement.style.setProperty("--text-color", "#000000");
+      document.documentElement.style.setProperty(
+        "--background-color",
+        "#ffffff"
+      );
+    }
+
+    // Update any Vega-Lite visualizations
+    const vegaViews = document.querySelectorAll(".vega-embed");
+    vegaViews.forEach((view) => {
+      if (view._spec) {
+        view._spec.config = {
+          ...view._spec.config,
+          range: {
+            category: [
+              colors.accent1,
+              colors.accent2,
+              colors.accent3,
+              colors.accent4,
+            ],
+          },
+        };
+        // Trigger redraw
+        vegaEmbed(view, view._spec);
+      }
+    });
+
+    // Update any PowerBI visualizations
+    const powerBiEmbeds = document.querySelectorAll('iframe[src*="powerbi"]');
+    powerBiEmbeds.forEach((embed) => {
+      // Use PowerBI SDK to update colors if available
+      if (window.powerbi) {
+        const report = powerbi.get(embed);
+        if (report) {
+          report.updateSettings({
+            customLayout: {
+              pageBackground: { color: colors.background },
+              textColor: colors.text,
+            },
+          });
+        }
+      }
+    });
+
+    // Update map layer colors if map exists
+    if (this.scrollManager?.map) {
+      const colors = this.colorSchemes[this.settings.colorScheme];
+      const map = this.scrollManager.map;
+
+      if (map.getLayer("incidents-layer")) {
+        map.setPaintProperty("incidents-layer", "circle-color", [
+          "match",
+          ["get", "severity"],
+          "severe",
+          colors.severe,
+          "minor",
+          colors.minor,
+          colors.minor, // default color
+        ]);
+      }
+    }
+  }
+
   applyMapSettings() {
+    if (!this.scrollManager?.map) return;
+
     console.log("Applying map settings...");
-    const mapStyle = document.getElementById("mapStyle").value;
-    const pointSize = document.getElementById("pointSize").value;
-    const pointOpacity = document.getElementById("pointOpacity").value;
+    const mapStyle = document.getElementById("mapStyle")?.value;
+    const pointSize =
+      Number(document.getElementById("pointSize")?.value) ||
+      this.settings.pointSize;
+    const pointOpacity =
+      Number(document.getElementById("pointOpacity")?.value) ||
+      this.settings.pointOpacity;
 
     console.log("New map settings:", { mapStyle, pointSize, pointOpacity });
 
+    // Update settings with numeric values
     this.settings = {
       ...this.settings,
       pointSize,
       pointOpacity,
     };
 
-    if (!this.scrollManager || !this.scrollManager.map) {
-      console.warn("ScrollManager or map not available");
-      return;
-    }
+    // Save settings to localStorage
+    this.saveSettings();
 
     const map = this.scrollManager.map;
 
@@ -252,18 +473,10 @@ class AccessibilityManager {
       console.log("Updating point properties:", { pointSize, pointOpacity });
 
       try {
-        map.setPaintProperty(
-          "incidents-layer",
-          "circle-radius",
-          parseInt(pointSize)
-        );
-        map.setPaintProperty(
-          "incidents-layer",
-          "circle-opacity",
-          parseFloat(pointOpacity)
-        );
+        map.setPaintProperty("incidents-layer", "circle-radius", pointSize);
+        map.setPaintProperty("incidents-layer", "circle-opacity", pointOpacity);
         console.log("Successfully updated point properties");
-        return; // Exit early if we're only updating point properties
+        return;
       } catch (error) {
         console.error("Error updating point properties:", error);
       }
@@ -274,14 +487,12 @@ class AccessibilityManager {
       console.log("Setting map style to:", mapStyle);
       map.setStyle(`mapbox://styles/mapbox/${mapStyle}`);
 
-      // Wait for the style to load before updating point properties
       map.once("style.load", () => {
         console.log("Map style loaded, recreating layer");
 
         if (this.dataManager) {
           const geojsonData = this.dataManager.getGeoJSON();
 
-          // Add source if it doesn't exist
           if (!map.getSource("incidents")) {
             map.addSource("incidents", {
               type: "geojson",
@@ -289,23 +500,23 @@ class AccessibilityManager {
             });
           }
 
-          // Add layer if it doesn't exist
           if (!map.getLayer("incidents-layer")) {
+            const colors = this.colorSchemes[this.settings.colorScheme];
             map.addLayer({
               id: "incidents-layer",
               type: "circle",
               source: "incidents",
               paint: {
-                "circle-radius": parseInt(pointSize),
-                "circle-opacity": parseFloat(pointOpacity),
+                "circle-radius": pointSize,
+                "circle-opacity": pointOpacity,
                 "circle-color": [
                   "match",
                   ["get", "severity"],
                   "severe",
-                  this.colorSchemes[this.settings.colorScheme].severe,
+                  colors.severe,
                   "minor",
-                  this.colorSchemes[this.settings.colorScheme].minor,
-                  this.colorSchemes[this.settings.colorScheme].minor,
+                  colors.minor,
+                  colors.minor,
                 ],
               },
             });

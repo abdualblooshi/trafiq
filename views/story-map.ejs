@@ -1,0 +1,43 @@
+<div class="flex-1"></div>
+<div id="map"></div>
+<%- include('components/weather-overlay') %>
+<%- include('components/risk-gauge') %>
+<%- include('components/event-timeline') %>
+
+<div id="story-container">
+  <div class="story-sections">
+    <div class="story-step" data-step="intro" data-location="25.2048,55.2708,11">
+      <div class="story-step-content">
+        <h2 class="text-3xl font-bold mb-4">Traffic Incidents in Dubai</h2>
+        <p class="text-lg">Scroll to explore how traffic incidents evolved and their impact on the city.</p>
+      </div>
+    </div>
+
+    <div class="story-step" data-step="downtown" data-location="25.1972,55.2744,14">
+      <div class="story-step-content">
+        <h3 class="text-2xl font-bold mb-4">Downtown Dubai</h3>
+        <p class="text-lg">The downtown area shows a significant concentration of incidents...</p>
+      </div>
+    </div>
+
+    <div class="story-step" data-step="marina" data-location="25.0806,55.1417,15">
+      <div class="story-step-content">
+        <h3 class="text-2xl font-bold mb-4">Dubai Marina</h3>
+        <p class="text-lg">The Marina area demonstrates unique traffic patterns...</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+
+<script src="/js/dataManager.js"></script>
+<script src="/js/scrollManager.js"></script>
+<script src="/js/accessibilityManager.js"></script>
+<script src="/js/sidebar.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/table.js"></script>
+
+<%- include('partials/modals') %>

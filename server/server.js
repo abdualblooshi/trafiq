@@ -54,15 +54,81 @@ app.get("/mapbox-token", (req, res) => {
   res.json({ token: mapboxToken });
 });
 
-// Page Routes
 app.get("/", async (req, res) => {
   try {
     const dataController = require("./controllers/dataController");
     const incidents = await dataController.getIncidents();
+
+    // Calculate some basic statistics for the dashboard
+    const totalIncidents = incidents.length;
+    const severeIncidents = incidents.filter(
+      (i) => i.severity === "severe"
+    ).length;
+    const minorIncidents = incidents.filter(
+      (i) => i.severity === "minor"
+    ).length;
+    const activeIncidents = incidents.filter(
+      (i) => i.status === "active"
+    ).length;
+
     res.render("index", {
-      title: "Home",
+      title: "Dashboard",
       active: "home",
       incidents,
+      stats: {
+        total: totalIncidents,
+        severe: severeIncidents,
+        minor: minorIncidents,
+        active: activeIncidents,
+      },
+    });
+  } catch (error) {
+    res.render("error", {
+      title: "Error",
+      error,
+    });
+  }
+});
+
+// Page Routes
+app.get("/story-map", async (req, res) => {
+  try {
+    const dataController = require("./controllers/dataController");
+    const incidents = await dataController.getIncidents();
+    res.render("index", {
+      title: "Story Map",
+      active: "story-map",
+      incidents,
+    });
+  } catch (error) {
+    res.render("error", {
+      title: "Error",
+      error,
+    });
+  }
+});
+
+app.get("/data-table", async (req, res) => {
+  try {
+    const dataController = require("./controllers/dataController");
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const incidents = await dataController.getIncidents();
+    const totalRecords = incidents.length;
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    // Get paginated incidents
+    const startIndex = (page - 1) * limit;
+    const paginatedIncidents = incidents.slice(startIndex, startIndex + limit);
+
+    res.render("data-table", {
+      title: "Data Table",
+      active: "data-table",
+      incidents: paginatedIncidents,
+      currentPage: page,
+      totalPages,
+      totalRecords,
+      limit,
     });
   } catch (error) {
     res.render("error", {
@@ -78,6 +144,7 @@ app.use((err, req, res, next) => {
   res.status(500).render("error", {
     title: "Error",
     error: err,
+    active: "error",
   });
 });
 

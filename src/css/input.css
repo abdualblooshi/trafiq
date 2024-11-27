@@ -251,3 +251,37 @@ input[type="range"]::-webkit-slider-thumb {
 body {
   overflow-x: hidden;
 }
+
+/* Add to existing input.css */
+
+.event-timeline-container {
+  background: rgba(17, 24, 39, 0.95);
+}
+
+.event-item {
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.event-item.holiday {
+  background: rgba(59, 130, 246, 0.2);
+  border-left: 3px solid #3b82f6;
+}
+
+.event-item.festival {
+  background: rgba(139, 92, 246, 0.2);
+  border-left: 3px solid #8b5cf6;
+}
+
+.risk-gauge {
+  width: 200px;
+  height: 200px;
+  background: rgba(17, 24, 39, 0.95);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.weather-overlay {
+  background: rgba(17, 24, 39, 0.95);
+  backdrop-filter: blur(4px);
+}

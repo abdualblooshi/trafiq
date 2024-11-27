@@ -1,22 +1,28 @@
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    // Initialize managers
+    // Initialize data manager
     const dataManager = new DataManager();
     await dataManager.loadData();
     console.log("Data loaded successfully");
 
-    const scrollManager = new ScrollManager(dataManager);
-    await scrollManager.initialize();
-    console.log("Scroll manager initialized");
+    // Initialize scroll manager only if we're on a page that needs it
+    let scrollManager;
+    if (document.getElementById("map")) {
+      scrollManager = new ScrollManager(dataManager);
+      await scrollManager.initialize();
+      console.log("Scroll manager initialized");
+      // Make scrollManager globally available for sidebar filters
+      window.scrollManager = scrollManager;
+    }
 
-    // Make scrollManager globally available for sidebar filters
-    window.scrollManager = scrollManager;
-
-    const accessibilityManager = new AccessibilityManager(
-      dataManager,
-      scrollManager
-    );
-    window.accessibilityManager = accessibilityManager; // Make it globally available if needed
+    // Initialize accessibility manager only if scroll manager exists
+    if (scrollManager) {
+      const accessibilityManager = new AccessibilityManager(
+        dataManager,
+        scrollManager
+      );
+      window.accessibilityManager = accessibilityManager;
+    }
 
     // Initialize sidebar
     const sidebar = new Sidebar(dataManager);

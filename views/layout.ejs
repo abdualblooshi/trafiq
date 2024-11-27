@@ -24,33 +24,52 @@
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.16.3"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.22.2"></script>
 
+
   <!-- Custom styles -->
   <style>
-    body {
-      @apply bg-gray-900 text-white;
-    }
-
     .sidebar {
-      @apply bg-gray-900 text-gray-300;
+      @apply bg-slate-800 text-slate-200;
     }
 
     .sidebar a {
-      @apply text-gray-300 hover: text-white transition-colors duration-200;
+      @apply text-slate-300 hover: text-white hover:bg-slate-700 transition-colors duration-200;
     }
 
     .sidebar h2 {
-      @apply text-gray-500 uppercase tracking-wider text-xs font-semibold;
+      @apply text-slate-400 uppercase tracking-wider text-xs font-semibold;
+    }
+
+    /* Additional color scheme improvements */
+    .btn-primary {
+      @apply bg-indigo-600 hover: bg-indigo-700 text-white;
+    }
+
+    .card {
+      @apply bg-slate-800 border border-slate-700;
+    }
+
+    .input {
+      @apply bg-slate-700 border-slate-600 text-slate-200 focus: border-indigo-500;
+    }
+
+    .table-header {
+      @apply bg-slate-800 text-slate-200;
+    }
+
+    .table-row {
+      @apply border-slate-700 hover: bg-slate-800;
     }
   </style>
 </head>
 
-<body class="bg-black text-white">
+<body class="bg-slate-950 text-slate-100">
   <%- include('partials/sidebar', { active }) %>
   <div class="ml-64 p-6 flex items-center justify-center min-h-screen">
     <%- body %>
   </div>
 
   <!-- Replaced vendor scripts with CDN versions -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
   <script src="https://unpkg.com/scrollama"></script>
   <script src="/js/dataManager.js"></script>

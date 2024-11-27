@@ -35,9 +35,21 @@ importers:
       express-ejs-layouts:
         specifier: ^2.5.1
         version: 2.5.1
+      gauge-js:
+        specifier: ^1.0.5
+        version: 1.0.5
+      ical:
+        specifier: ^0.8.0
+        version: 0.8.0
       mapbox-gl:
         specifier: ^3.8.0
         version: 3.8.0
+      moment:
+        specifier: ^2.30.1
+        version: 2.30.1
+      openweathermap:
+        specifier: ^1.0.0
+        version: 1.0.0
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -1802,6 +1814,9 @@ packages:
   fuzzaldrin-plus@0.6.0:
     resolution: {integrity: sha512-srIDThJHkdp3aPwJpR/HNzYZCRJwm07b/igxseoHSB7qR8e/gQp4F6lMGknE3TQI1Aq14TiFf/wzrHOp9LY/EA==}
 
+  gauge-js@1.0.5:
+    resolution: {integrity: sha512-79d6B7tvwS6nMAPIRhlyuZy/Xefv5muAmp9UBDxiOJjjsZ3kRSOhiIeiNWTetST7UNMMMjugWMPgCiL1vah/Ew==}
+
   gensync@1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
     engines: {node: '>=6.9.0'}
@@ -1918,6 +1933,9 @@ packages:
 
   hyphenate-style-name@1.1.0:
     resolution: {integrity: sha512-WDC/ui2VVRrz3jOVi+XtjqkDjiVjTtFaAGiW37k6b+ohyQ5wYDOGkvCZa8+H0nx3gyvv0+BST9xuOgIyGQ00gw==}
+
+  ical@0.8.0:
+    resolution: {integrity: sha512-/viUSb/RGLLnlgm0lWRlPBtVeQguQRErSPYl3ugnUaKUnzQswKqOG3M8/P1v1AB5NJwlHTuvTq1cs4mpeG2rCg==}
 
   iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
@@ -2296,6 +2314,9 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
+  luxon@1.28.1:
+    resolution: {integrity: sha512-gYHAa180mKrNIUJCbwpmD0aTu9kV0dREDrwNnuyFAsO1Wt0EVYSZelPnJlbj9HplzXX/YWXHFTL45kvZ53M0pw==}
+
   make-dir@4.0.0:
     resolution: {integrity: sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw==}
     engines: {node: '>=10'}
@@ -2364,6 +2385,9 @@ packages:
   minipass@7.1.2:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
     engines: {node: '>=16 || 14 >=14.17'}
+
+  moment@2.30.1:
+    resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
 
   ms@2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
@@ -2446,6 +2470,10 @@ packages:
   onetime@5.1.2:
     resolution: {integrity: sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==}
     engines: {node: '>=6'}
+
+  openweathermap@1.0.0:
+    resolution: {integrity: sha512-Zvf4qrjISbfkt7UxlRwXTswJZ21ipNciFwhpiA0VMoah7ocFuH4CcyggX9AixO+2P+svh8d42r0yOPOjKajL3g==}
+    engines: {node: '>=0.10.x'}
 
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
@@ -2776,6 +2804,9 @@ packages:
 
   route-recognizer@0.1.11:
     resolution: {integrity: sha512-7JNu5mXQVa39zxmUKyk/bfpeF2WyEC5JKVTJO5HATcoUQpcQsI3eLzhwGU69xeOagQxfOQ+yr2sSv0G8xy+vQA==}
+
+  rrule@2.4.1:
+    resolution: {integrity: sha512-+NcvhETefswZq13T8nkuEnnQ6YgUeZaqMqVbp+ZiFDPCbp3AVgQIwUvNVDdMNrP05bKZG9ddDULFp0qZZYDrxg==}
 
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
@@ -5407,6 +5438,8 @@ snapshots:
 
   fuzzaldrin-plus@0.6.0: {}
 
+  gauge-js@1.0.5: {}
+
   gensync@1.0.0-beta.2: {}
 
   geojson-vt@4.0.2: {}
@@ -5518,6 +5551,10 @@ snapshots:
   human-signals@2.1.0: {}
 
   hyphenate-style-name@1.1.0: {}
+
+  ical@0.8.0:
+    dependencies:
+      rrule: 2.4.1
 
   iconv-lite@0.4.24:
     dependencies:
@@ -6048,6 +6085,9 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
+  luxon@1.28.1:
+    optional: true
+
   make-dir@4.0.0:
     dependencies:
       semver: 7.6.3
@@ -6128,6 +6168,8 @@ snapshots:
 
   minipass@7.1.2: {}
 
+  moment@2.30.1: {}
+
   ms@2.0.0: {}
 
   ms@2.1.3: {}
@@ -6199,6 +6241,8 @@ snapshots:
   onetime@5.1.2:
     dependencies:
       mimic-fn: 2.1.0
+
+  openweathermap@1.0.0: {}
 
   optionator@0.9.4:
     dependencies:
@@ -6524,6 +6568,10 @@ snapshots:
   robust-predicates@3.0.2: {}
 
   route-recognizer@0.1.11: {}
+
+  rrule@2.4.1:
+    optionalDependencies:
+      luxon: 1.28.1
 
   run-parallel@1.2.0:
     dependencies:
