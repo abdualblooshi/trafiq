@@ -11,6 +11,52 @@ class ScrollManager {
       severe: "#ff0000",
       minor: "#ffa500",
     };
+    this.populationData = {
+      years: [
+        "1975",
+        "1980",
+        "1985",
+        "1993",
+        "1995",
+        "2000",
+        "2005",
+        "2006",
+        "2007",
+        "2008",
+        "2009",
+        "2010",
+        "2011",
+        "2012",
+        "2013",
+        "2014",
+        "2015",
+        "2016",
+        "2017",
+        "2018",
+        "2019",
+        "2020",
+        "2021",
+        "2022",
+        "2023",
+      ],
+      males: [
+        128821, 187714, 247179, 406128, 478209, 611799, 989305, 1073485,
+        1164576, 1263130, 1369740, 1485046, 1515770, 1547135, 1579145, 1613175,
+        1703355, 1888520, 2088870, 2233390, 2331800, 2362255, 2400100, 2438780,
+        2507200,
+      ],
+      females: [
+        54366, 88587, 123609, 204798, 211211, 250588, 332148, 348327, 365216,
+        382843, 401238, 420430, 487400, 558740, 634700, 714175, 743320, 810080,
+        887585, 958885, 1024100, 1048945, 1078200, 1111120, 1147800,
+      ],
+      total: [
+        183187, 276301, 370788, 610926, 689420, 862387, 1321453, 1421812,
+        1529792, 1645973, 1770978, 1905476, 2003170, 2105875, 2213845, 2327350,
+        2446675, 2698600, 2976455, 3192275, 3355900, 3411200, 3478300, 3549900,
+        3655000,
+      ],
+    };
   }
 
   updateColorScheme(newColors) {
@@ -148,40 +194,64 @@ class ScrollManager {
 
       console.log("Processing incidents for charts:", incidents.length);
 
+      // Pre-allocate monthly buckets with a fixed size (24 months)
       const monthlyData = {};
       const severityData = { severe: 0, minor: 0 };
 
-      incidents.forEach((incident) => {
-        severityData[incident.severity]++;
+      // Process data in chunks to avoid blocking the main thread
+      const chunkSize = 1000;
+      const totalChunks = Math.ceil(incidents.length / chunkSize);
 
-        const incidentDate = new Date(incident.acci_time);
+      const processChunk = async (startIndex) => {
+        return new Promise((resolve) => {
+          const endIndex = Math.min(startIndex + chunkSize, incidents.length);
 
-        if (isNaN(incidentDate.getTime())) {
-          console.warn("Invalid date:", incident.acci_time);
-          return;
-        }
+          for (let i = startIndex; i < endIndex; i++) {
+            const incident = incidents[i];
+            severityData[incident.severity]++;
 
-        const monthKey = incidentDate.toLocaleString("en-US", {
-          month: "short",
-          year: "2-digit",
+            const incidentDate = new Date(incident.acci_time);
+            if (isNaN(incidentDate.getTime())) continue;
+
+            // Format date string directly without using toLocaleString for better performance
+            const month = incidentDate.getMonth();
+            const year = incidentDate.getFullYear();
+            const monthKey = `${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][month]} ${String(year).slice(2)}`;
+
+            if (!monthlyData[monthKey]) {
+              monthlyData[monthKey] = {
+                severe: 0,
+                minor: 0,
+              };
+            }
+            monthlyData[monthKey][incident.severity]++;
+          }
+
+          // Use setTimeout to yield to the main thread
+          setTimeout(resolve, 0);
         });
+      };
 
-        if (!monthlyData[monthKey]) {
-          monthlyData[monthKey] = {
-            severe: 0,
-            minor: 0,
-          };
+      // Process all chunks
+      for (let i = 0; i < incidents.length; i += chunkSize) {
+        await processChunk(i);
+        // Update progress if needed
+        const progress = Math.round((i / incidents.length) * 100);
+        if (progress % 20 === 0) {
+          console.log(`Processing data: ${progress}% complete`);
         }
-        monthlyData[monthKey][incident.severity]++;
-      });
+      }
 
-      console.log("Processed chart data:", {
-        monthlyData: Object.keys(monthlyData).length,
-        severityData,
+      // Compress data by removing months with no incidents
+      const compressedMonthlyData = {};
+      Object.entries(monthlyData).forEach(([month, data]) => {
+        if (data.severe > 0 || data.minor > 0) {
+          compressedMonthlyData[month] = data;
+        }
       });
 
       this.chartData = {
-        monthlyData,
+        monthlyData: compressedMonthlyData,
         severityData,
       };
 
@@ -306,6 +376,59 @@ class ScrollManager {
               },
             });
             this.chartInstances.push(lineChart);
+          } else if (chartType === "population") {
+            const populationChart = new Chart(ctx, {
+              type: "line",
+              data: {
+                labels: this.populationData.years,
+                datasets: [
+                  {
+                    label: "Total Population",
+                    data: this.populationData.total,
+                    borderColor: "#4CAF50",
+                    backgroundColor: "rgba(76, 175, 80, 0.1)",
+                    tension: 0.4,
+                    fill: true,
+                  },
+                  {
+                    label: "Males",
+                    data: this.populationData.males,
+                    borderColor: "#2196F3",
+                    backgroundColor: "rgba(33, 150, 243, 0.1)",
+                    tension: 0.4,
+                    fill: true,
+                  },
+                  {
+                    label: "Females",
+                    data: this.populationData.females,
+                    borderColor: "#E91E63",
+                    backgroundColor: "rgba(233, 30, 99, 0.1)",
+                    tension: 0.4,
+                    fill: true,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    title: {
+                      display: true,
+                      text: "Population",
+                    },
+                  },
+                },
+                plugins: {
+                  title: {
+                    display: true,
+                    text: "Dubai Population Growth (1975-2023)",
+                  },
+                },
+              },
+            });
+            this.chartInstances.push(populationChart);
           }
         } catch (error) {
           console.error(
@@ -386,11 +509,39 @@ class ScrollManager {
               <h3 class="text-2xl font-bold text-white">Downtown Dubai</h3>
             </div>
             <div class="text-gray-200">
-              <p>The bustling heart of Dubai, where modern architecture meets urban mobility challenges.</p>
-              <div class="mt-2 flex items-center">
-                <span class="w-4 h-4 rounded-full bg-yellow-500 mr-2"></span>
-                <span>High density traffic area</span>
+              <p class="mb-3">The bustling heart of Dubai, where modern architecture meets urban mobility challenges.</p>
+              <div class="mb-3">
+                <span class="text-2xl font-bold text-yellow-500">${stats.byArea.downtown}</span>
+                <span class="text-lg"> reported incidents</span>
               </div>
+              <p class="text-sm opacity-80">High incident rates likely due to:</p>
+              <ul class="list-disc ml-5 text-sm opacity-80">
+                <li>Dense tourist traffic around Burj Khalifa and Dubai Mall</li>
+                <li>Complex road network with multiple intersections</li>
+                <li>Peak hour congestion from business districts</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="story-step rounded-lg p-6 mb-8" data-step="deira" data-location="25.2743,55.3161,14">
+          <div class="story-step-content">
+            <div class="flex items-center mb-4">
+              <i class="fas fa-store text-orange-500 text-3xl mr-4"></i>
+              <h3 class="text-2xl font-bold text-white">Deira</h3>
+            </div>
+            <div class="text-gray-200">
+              <p class="mb-3">The historic commercial heart of Dubai with its traditional markets and busy streets.</p>
+              <div class="mb-3">
+                <span class="text-2xl font-bold text-orange-500">${stats.byArea.deira}</span>
+                <span class="text-lg"> reported incidents</span>
+              </div>
+              <p class="text-sm opacity-80">Traffic challenges include:</p>
+              <ul class="list-disc ml-5 text-sm opacity-80">
+                <li>High commercial vehicle traffic</li>
+                <li>Traditional market (souq) visitors</li>
+                <li>Narrow streets in older areas</li>
+              </ul>
             </div>
           </div>
         </div>
@@ -402,11 +553,17 @@ class ScrollManager {
               <h3 class="text-2xl font-bold text-white">Dubai Marina</h3>
             </div>
             <div class="text-gray-200">
-              <p>A waterfront district with unique traffic patterns influenced by tourism and residential density.</p>
-              <div class="mt-2 flex items-center">
-                <span class="w-4 h-4 rounded-full bg-blue-500 mr-2"></span>
-                <span>Mixed-use zone</span>
+              <p class="mb-3">A waterfront district with unique traffic patterns influenced by tourism and residential density.</p>
+              <div class="mb-3">
+                <span class="text-2xl font-bold text-blue-500">${stats.byArea.marina}</span>
+                <span class="text-lg"> reported incidents</span>
               </div>
+              <p class="text-sm opacity-80">Contributing factors include:</p>
+              <ul class="list-disc ml-5 text-sm opacity-80">
+                <li>High residential population density</li>
+                <li>Tram and metro station connections creating transit hubs</li>
+                <li>Tourist activities and beach traffic</li>
+              </ul>
             </div>
           </div>
         </div>
@@ -437,18 +594,22 @@ class ScrollManager {
           </div>
         </div>
 
-        <div class="story-step rounded-lg p-6" data-step="al-qouz" data-location="25.1376,55.2313,14">
+        <div class="story-step rounded-lg p-6" data-step="population-impact" data-location="25.2048,55.2708,11">
           <div class="story-step-content">
             <div class="flex items-center mb-4">
-              <i class="fas fa-industry text-orange-500 text-3xl mr-4"></i>
-              <h3 class="text-2xl font-bold text-white">Al Quoz Industrial Area</h3>
+              <i class="fas fa-users text-teal-500 text-3xl mr-4"></i>
+              <h3 class="text-2xl font-bold text-white">Population Growth Impact</h3>
             </div>
             <div class="text-gray-200">
-              <p>Industrial zone with heavy vehicle traffic and unique safety considerations.</p>
-              <div class="mt-2 flex items-center">
-                <span class="w-4 h-4 rounded-full bg-orange-500 mr-2"></span>
-                <span>Industrial zone</span>
-              </div>
+              <p class="mb-3">Dubai's remarkable population growth from 1975 to 2023 has significantly influenced traffic patterns and infrastructure demands.</p>
+              <div class="chart-container" data-chart-type="population" style="height: 300px;"></div>
+              <p class="mt-4 text-sm opacity-80">Key observations:</p>
+              <ul class="list-disc ml-5 text-sm opacity-80">
+                <li>Population grew from 183,187 in 1975 to 3,655,000 in 2023</li>
+                <li>Male population has consistently been higher due to workforce demographics</li>
+                <li>Significant acceleration in growth post-2000</li>
+                <li>Growing population density impacts traffic infrastructure needs</li>
+              </ul>
             </div>
           </div>
         </div>`;
