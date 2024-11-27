@@ -232,6 +232,20 @@ app.get("/time-dis", (req, res) => {
   });
 });
 
+app.get("/incidents", (req, res) => {
+  res.render("incidents", {
+    title: "Traffic Incidents Calendar & Clock View",
+    active: "incidents",
+  });
+});
+
+app.get("/incidents-circle", (req, res) => {
+  res.render("incidents-circle", {
+    title: "Traffic Incidents Circle Packing",
+    active: "incidents-circle",
+  });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error("Server Error:", err);
