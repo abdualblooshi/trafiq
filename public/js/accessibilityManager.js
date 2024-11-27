@@ -364,8 +364,8 @@ class AccessibilityManager {
   }
 
   applyGlobalStyles() {
-    // Apply color scheme to all visualizations
     const colors = this.colorSchemes[this.settings.colorScheme];
+    console.log("Applying color scheme:", this.settings.colorScheme, colors);
 
     // Apply font size
     document.documentElement.style.setProperty(
@@ -379,69 +379,42 @@ class AccessibilityManager {
 
     // Apply contrast settings
     if (this.settings.contrast === "high") {
-      document.documentElement.style.setProperty("--text-color", "#000000");
+      document.documentElement.style.setProperty("--text-color", "#ffffff");
       document.documentElement.style.setProperty(
         "--background-color",
-        "#ffffff"
+        "#000000"
       );
     }
 
-    // Update any Vega-Lite visualizations
-    const vegaViews = document.querySelectorAll(".vega-embed");
-    vegaViews.forEach((view) => {
-      if (view._spec) {
-        view._spec.config = {
-          ...view._spec.config,
-          range: {
-            category: [
-              colors.accent1,
-              colors.accent2,
-              colors.accent3,
-              colors.accent4,
-            ],
-          },
-        };
-        // Trigger redraw
-        vegaEmbed(view, view._spec);
-      }
-    });
+    // Update ScrollManager colors if available
+    if (this.scrollManager) {
+      console.log("Updating ScrollManager colors");
+      this.scrollManager.updateColorScheme({
+        severe: colors.severe,
+        minor: colors.minor,
+      });
 
-    // Update any PowerBI visualizations
-    const powerBiEmbeds = document.querySelectorAll('iframe[src*="powerbi"]');
-    powerBiEmbeds.forEach((embed) => {
-      // Use PowerBI SDK to update colors if available
-      if (window.powerbi) {
-        const report = powerbi.get(embed);
-        if (report) {
-          report.updateSettings({
-            customLayout: {
-              pageBackground: { color: colors.background },
-              textColor: colors.text,
-            },
-          });
-        }
-      }
-    });
-
-    // Update map layer colors if map exists
-    if (this.scrollManager?.map) {
-      const colors = this.colorSchemes[this.settings.colorScheme];
-      const map = this.scrollManager.map;
-
-      if (map.getLayer("incidents-layer")) {
-        map.setPaintProperty("incidents-layer", "circle-color", [
-          "match",
-          ["get", "severity"],
-          "severe",
-          colors.severe,
-          "minor",
-          colors.minor,
-          colors.minor, // default color
-        ]);
+      // Update map colors
+      if (this.scrollManager.map?.getLayer("incidents-layer")) {
+        this.scrollManager.map.setPaintProperty(
+          "incidents-layer",
+          "circle-color",
+          [
+            "match",
+            ["get", "severity"],
+            "severe",
+            colors.severe,
+            "minor",
+            colors.minor,
+            colors.minor,
+          ]
+        );
       }
     }
-  }
 
+    // Save settings to localStorage
+    this.saveSettings();
+  }
   applyMapSettings() {
     if (!this.scrollManager?.map) return;
 
