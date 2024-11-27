@@ -1,0 +1,37 @@
+<div class="flex-1 min-h-screen bg-slate-900 p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 gap-6">
+      <!-- Visualization Container -->
+      <div class="bg-slate-800 p-6 rounded-lg shadow-xl">
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <div>
+              <h2 class="text-xl font-semibold text-white">Daily and Hourly Distribution</h2>
+              <p class="text-gray-400 text-sm mt-1">Click on days to filter the hourly distribution</p>
+            </div>
+            <button id="resetButton" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+              Reset Selection
+            </button>
+          </div>
+
+          <div id="visContainer" class="w-full min-h-[800px] bg-slate-800">
+            <!-- Vega-Lite visualization will be embedded here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend and Information -->
+      <div class="bg-slate-800 p-6 rounded-lg shadow-xl">
+        <h3 class="text-lg font-semibold text-white mb-4">How to Use This Visualization</h3>
+        <div class="text-gray-300 space-y-2">
+          <p>This interactive visualization shows traffic incident patterns across days and hours:</p>
+          <p>1. The top chart shows the distribution of incidents by day of the week</p>
+          <p>2. Click on any day in the top chart to filter the hourly distribution below</p>
+          <p>3. Hover over any point to see detailed information</p>
+          <p>4. Use the reset button to clear all filters</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

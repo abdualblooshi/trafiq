@@ -225,6 +225,13 @@ app.get("/data-table", async (req, res) => {
   }
 });
 
+app.get("/time-dis", (req, res) => {
+  res.render("time-dis", {
+    title: "Traffic Incidents Heat Map",
+    active: "time-dis",
+  });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error("Server Error:", err);
@@ -240,6 +247,7 @@ app.use((req, res) => {
   console.log("404 Not Found:", req.url);
   res.status(404).render("error", {
     title: "Not Found",
+    active: "error",
     error: { message: `Page not found: ${req.url}` },
   });
 });

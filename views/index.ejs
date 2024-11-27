@@ -1,253 +1,107 @@
-<!-- dashboard.ejs -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-  <!-- Weather Overview Card -->
-  <div class="col-span-1 bg-gray-800 rounded-lg p-6 shadow-lg">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-bold">Current Weather</h2>
-      <div id="weather-icon" class="text-4xl"></div>
-    </div>
-    <div id="current-weather" class="space-y-2">
-      <!-- Weather data will be injected here -->
-    </div>
-  </div>
-
-  <!-- Traffic Overview Card -->
-  <div class="col-span-1 bg-gray-800 rounded-lg p-6 shadow-lg">
-    <h2 class="text-xl font-bold mb-4">Traffic Overview</h2>
-    <div id="traffic-stats" class="grid grid-cols-2 gap-4">
-      <!-- Traffic stats will be injected here -->
-    </div>
-  </div>
-
-  <!-- Weather Forecast Card -->
-  <div class="col-span-1 bg-gray-800 rounded-lg p-6 shadow-lg">
-    <h2 class="text-xl font-bold mb-4">5-Day Forecast</h2>
-    <div id="weather-forecast" class="space-y-2">
-      <!-- Forecast data will be injected here -->
-    </div>
-  </div>
-
-  <!-- Weather-Traffic Correlation -->
-  <div class="col-span-2 bg-gray-800 rounded-lg p-6 shadow-lg">
-    <h2 class="text-xl font-bold mb-4">Weather Impact on Traffic</h2>
-    <div class="h-80" id="correlation-chart"></div>
-  </div>
-
-  <!-- Hourly Distribution -->
-  <div class="col-span-1 bg-gray-800 rounded-lg p-6 shadow-lg">
-    <h2 class="text-xl font-bold mb-4">Hourly Incident Distribution</h2>
-    <div class="h-60" id="hourly-chart"></div>
-  </div>
-
-  <!-- Interactive Map -->
-  <div class="col-span-3 bg-gray-800 rounded-lg p-6 shadow-lg">
-    <h2 class="text-xl font-bold mb-4">Interactive Map View</h2>
-    <div class="h-96" id="dashboard-map"></div>
-    <div class="mt-4 flex gap-4" id="map-filters">
-      <!-- Map filters will be added here -->
-    </div>
-  </div>
-
-  <!-- Detail Charts Row -->
-  <div class="col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- Severity by Weather -->
-    <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
-      <h2 class="text-xl font-bold mb-4">Incident Severity by Weather</h2>
-      <div class="h-60" id="severity-weather-chart"></div>
+<!-- views/index.ejs -->
+<div class="flex-1 min-h-screen bg-slate-900 p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header Section -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-white mb-2">Traffic Incidents Dashboard</h1>
+      <p class="text-gray-400">Real-time monitoring and analysis of traffic incidents in Dubai</p>
     </div>
 
-    <!-- Time Analysis -->
-    <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
-      <h2 class="text-xl font-bold mb-4">Time-based Analysis</h2>
-      <div class="h-60" id="time-analysis-chart"></div>
+    <!-- Main Grid Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <!-- Key Metrics Cards -->
+      <div class="lg:col-span-3 grid grid-cols-2 lg:grid-cols-1 gap-4">
+        <div class="bg-slate-800 p-4 lg:p-6 rounded-lg shadow-xl">
+          <h2 class="text-3xl lg:text-4xl font-bold text-blue-400 mb-2" id="totalIncidents">0</h2>
+          <p class="text-gray-300">Total Incidents</p>
+        </div>
+        <div class="bg-slate-800 p-4 lg:p-6 rounded-lg shadow-xl">
+          <h2 class="text-3xl lg:text-4xl font-bold text-red-400 mb-2" id="severeIncidents">0</h2>
+          <p class="text-gray-300">Severe Incidents</p>
+        </div>
+      </div>
+
+      <!-- Date Range Selector -->
+      <div class="lg:col-span-9 bg-slate-800 p-4 lg:p-6 rounded-lg shadow-xl">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h2 class="text-xl font-semibold text-white mb-2">Analysis Period</h2>
+            <p class="text-gray-400" id="dateRange">Loading date range...</p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input type="date" id="startDate" class="bg-slate-700 text-white px-3 py-2 rounded border border-slate-600">
+            <input type="date" id="endDate" class="bg-slate-700 text-white px-3 py-2 rounded border border-slate-600">
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters Section -->
+      <div class="lg:col-span-3">
+        <div class="bg-slate-800 p-4 lg:p-6 rounded-lg shadow-xl">
+          <h3 class="text-lg font-semibold text-white mb-4">Analysis Filters</h3>
+
+          <div class="space-y-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-1">Severity Level</label>
+              <select class="w-full bg-slate-700 text-white rounded border border-slate-600 px-3 py-2" id="severityFilter">
+                <option value="all">All Levels</option>
+                <option value="severe">Severe</option>
+                <option value="minor">Minor</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-1">Time Period</label>
+              <select class="w-full bg-slate-700 text-white rounded border border-slate-600 px-3 py-2" id="timeFilter">
+                <option value="all">All Times</option>
+                <option value="morning">Morning (6AM-12PM)</option>
+                <option value="afternoon">Afternoon (12PM-6PM)</option>
+                <option value="evening">Evening (6PM-12AM)</option>
+                <option value="night">Night (12AM-6AM)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Charts Section -->
+      <div class="lg:col-span-9 grid gap-4">
+        <div class="bg-slate-800 p-4 lg:p-6 rounded-lg shadow-xl">
+          <h3 class="text-xl font-semibold text-white mb-3">Incident Distribution</h3>
+          <div class="h-[300px] lg:h-[400px]">
+            <canvas id="incidentTypesChart"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-slate-800 p-4 lg:p-6 rounded-lg shadow-xl">
+          <h3 class="text-xl font-semibold text-white mb-3">24-Hour Distribution</h3>
+          <div class="h-[250px] lg:h-[300px]">
+            <canvas id="hourlyDistributionChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row Charts -->
+      <div class="lg:col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-slate-800 p-4 lg:p-6 rounded-lg shadow-xl">
+          <h3 class="text-xl font-semibold text-white mb-3">Severity Analysis</h3>
+          <div class="h-[250px] lg:h-[300px]">
+            <canvas id="severityChart"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-slate-800 p-4 lg:p-6 rounded-lg shadow-xl">
+          <h3 class="text-xl font-semibold text-white mb-3">Monthly Trends</h3>
+          <div class="h-[250px] lg:h-[300px]">
+            <canvas id="monthlyTrendChart"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-slate-800 p-4 lg:p-6 rounded-lg shadow-xl md:col-span-2 lg:col-span-1">
+          <h3 class="text-xl font-semibold text-white mb-3">Geographic Distribution</h3>
+          <div id="heatmap" class="h-[250px] lg:h-[300px] rounded"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
-
-<!-- Add necessary JavaScript -->
-<script>
-  class DashboardManager {
-    constructor() {
-      this.weatherData = null;
-      this.trafficData = null;
-      this.charts = {};
-      this.initialize();
-    }
-
-    async initialize() {
-      await Promise.all([
-        this.fetchWeatherData(),
-        this.fetchTrafficData()
-      ]);
-      this.setupCharts();
-      this.setupInteractions();
-    }
-
-    async fetchWeatherData() {
-      try {
-        const response = await fetch(`/api/weather`);
-        this.weatherData = await response.json();
-        this.updateWeatherUI();
-      } catch (error) {
-        console.error('Error fetching weather data:', error);
-      }
-    }
-
-    async fetchTrafficData() {
-      try {
-        const response = await fetch('/api/incidents');
-        this.trafficData = await response.json();
-        this.updateTrafficUI();
-      } catch (error) {
-        console.error('Error fetching traffic data:', error);
-      }
-    }
-
-    updateWeatherUI() {
-      const currentWeather = document.getElementById('current-weather');
-      if (!this.weatherData) return;
-
-      const {
-        main,
-        weather
-      } = this.weatherData;
-      currentWeather.innerHTML = `
-      <div class="flex justify-between items-center">
-        <div>
-          <p class="text-3xl font-bold">${Math.round(main.temp)}°C</p>
-          <p class="text-gray-400">${weather[0].description}</p>
-        </div>
-        <img src="http://openweathermap.org/img/w/${weather[0].icon}.png" alt="Weather icon">
-      </div>
-      <div class="grid grid-cols-2 gap-4 mt-4">
-        <div>
-          <p class="text-gray-400">Humidity</p>
-          <p class="text-xl">${main.humidity}%</p>
-        </div>
-        <div>
-          <p class="text-gray-400">Wind</p>
-          <p class="text-xl">${this.weatherData.wind.speed} m/s</p>
-        </div>
-      </div>
-    `;
-    }
-
-    setupCharts() {
-      // Correlation Chart
-      this.charts.correlation = new Chart(
-        document.getElementById('correlation-chart').getContext('2d'), {
-          type: 'scatter',
-          data: this.prepareCorrelationData(),
-          options: {
-            responsive: true,
-            plugins: {
-              title: {
-                display: true,
-                text: 'Temperature vs. Incident Count'
-              }
-            },
-            scales: {
-              x: {
-                title: {
-                  display: true,
-                  text: 'Temperature (°C)'
-                }
-              },
-              y: {
-                title: {
-                  display: true,
-                  text: 'Number of Incidents'
-                }
-              }
-            }
-          }
-        }
-      );
-
-      // Hourly Distribution Chart
-      this.charts.hourly = new Chart(
-        document.getElementById('hourly-chart').getContext('2d'), {
-          type: 'bar',
-          data: this.prepareHourlyData(),
-          options: {
-            responsive: true,
-            plugins: {
-              title: {
-                display: true,
-                text: 'Hourly Incident Distribution'
-              }
-            }
-          }
-        }
-      );
-
-      // Initialize other charts...
-    }
-
-    prepareCorrelationData() {
-      // Combine weather and traffic data to show correlation
-      return {
-        datasets: [{
-          label: 'Incidents vs Temperature',
-          data: this.combineWeatherTrafficData(),
-          backgroundColor: 'rgba(75, 192, 192, 0.5)'
-        }]
-      };
-    }
-
-    prepareHourlyData() {
-      // Process traffic data by hour
-      const hourlyData = new Array(24).fill(0);
-      this.trafficData?.forEach(incident => {
-        const hour = new Date(incident.acci_time).getHours();
-        hourlyData[hour]++;
-      });
-
-      return {
-        labels: Array.from({
-          length: 24
-        }, (_, i) => `${i}:00`),
-        datasets: [{
-          label: 'Incidents',
-          data: hourlyData,
-          backgroundColor: 'rgba(54, 162, 235, 0.5)'
-        }]
-      };
-    }
-
-    setupInteractions() {
-      // Add click handlers for charts
-      Object.values(this.charts).forEach(chart => {
-        chart.canvas.onclick = (evt) => {
-          const points = chart.getElementsAtEventForMode(evt, 'nearest', {
-            intersect: true
-          }, true);
-          if (points.length) {
-            this.handleChartClick(chart, points[0]);
-          }
-        };
-      });
-    }
-
-    handleChartClick(chart, point) {
-      // Update other visualizations based on selection
-      const dataIndex = point.index;
-      this.updateLinkedVisualizations(chart.id, dataIndex);
-    }
-
-    updateLinkedVisualizations(sourceChartId, dataIndex) {
-      // Update other charts based on selection
-      Object.entries(this.charts).forEach(([id, chart]) => {
-        if (id !== sourceChartId) {
-          // Update chart based on selection
-          this.updateChartData(chart, sourceChartId, dataIndex);
-        }
-      });
-    }
-  }
-
-  // Initialize dashboard when document is ready
-  document.addEventListener('DOMContentLoaded', () => {
-    new DashboardManager();
-  });
-</script>
