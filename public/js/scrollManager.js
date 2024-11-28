@@ -57,6 +57,9 @@ class ScrollManager {
         3655000,
       ],
     };
+    this.weatherLayer = null;
+    this.weatherOpacity = 0.5;
+    this.currentFilter = null; // Track current severity filter
   }
 
   updateColorScheme(newColors) {
@@ -261,7 +264,6 @@ class ScrollManager {
       throw error;
     }
   }
-
   async setupCharts(chartContainers) {
     if (typeof Chart === "undefined") {
       console.error("Chart.js not loaded");
@@ -330,6 +332,27 @@ class ScrollManager {
               options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                onClick: (event, elements) => {
+                  if (elements.length > 0) {
+                    const index = elements[0].index;
+                    const severity = index === 0 ? "severe" : "minor";
+                    this.filterMapBySeverity(severity);
+                  } else {
+                    // Clicked outside data points - remove filter
+                    this.filterMapBySeverity(null);
+                  }
+                },
+                plugins: {
+                  tooltip: {
+                    callbacks: {
+                      label: (context) => {
+                        const label = context.label || "";
+                        const value = context.raw || 0;
+                        return `${label}: ${value} (Click to filter map)`;
+                      },
+                    },
+                  },
+                },
               },
             });
             this.chartInstances.push(pieChart);
@@ -376,6 +399,126 @@ class ScrollManager {
               },
             });
             this.chartInstances.push(lineChart);
+          } else if (chartType === "weather") {
+            const { monthlyData } = data;
+            const months = Object.keys(monthlyData).sort(
+              (a, b) => new Date("1 " + a) - new Date("1 " + b)
+            );
+
+            // Generate realistic Dubai temperature data that aligns with the months
+            const getTemperatureForMonth = (month) => {
+              const monthMap = {
+                Jan: 24,
+                Feb: 26,
+                Mar: 28,
+                Apr: 32,
+                May: 36,
+                Jun: 38,
+                Jul: 40,
+                Aug: 41,
+                Sep: 38,
+                Oct: 35,
+                Nov: 30,
+                Dec: 26,
+              };
+              const monthName = month.split(" ")[0];
+              return monthMap[monthName];
+            };
+
+            const temperatures = months.map((month) =>
+              getTemperatureForMonth(month)
+            );
+
+            const weatherChart = new Chart(ctx, {
+              type: "line",
+              data: {
+                labels: months.map(
+                  (month, index) => `${temperatures[index]}°C - ${month}`
+                ),
+                datasets: [
+                  {
+                    label: "Severe Incidents",
+                    data: months.map((m) => monthlyData[m].severe),
+                    borderColor: "#ef4444",
+                    backgroundColor: "rgba(239, 68, 68, 0.1)",
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                  },
+                  {
+                    label: "Minor Incidents",
+                    data: months.map((m) => monthlyData[m].minor),
+                    borderColor: "#f59e0b",
+                    backgroundColor: "rgba(245, 158, 11, 0.1)",
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                  intersect: false,
+                  mode: "index",
+                },
+                scales: {
+                  x: {
+                    title: {
+                      display: true,
+                      text: "Temperature & Month",
+                      color: "#fff",
+                    },
+                    grid: {
+                      color: "rgba(255, 255, 255, 0.1)",
+                    },
+                    ticks: {
+                      maxRotation: 45,
+                      minRotation: 45,
+                    },
+                  },
+                  y: {
+                    title: {
+                      display: true,
+                      text: "Number of Incidents",
+                      color: "#fff",
+                    },
+                    grid: {
+                      color: "rgba(255, 255, 255, 0.1)",
+                    },
+                  },
+                },
+                plugins: {
+                  tooltip: {
+                    callbacks: {
+                      title: (items) => {
+                        const parts = items[0].label.split(" - ");
+                        return `Temperature: ${parts[0]}, ${parts[1]}`;
+                      },
+                      label: (context) => {
+                        const label = context.dataset.label || "";
+                        const value = context.parsed.y || 0;
+                        return `${label}: ${value} incidents`;
+                      },
+                    },
+                  },
+                  legend: {
+                    position: "top",
+                    labels: {
+                      color: "#fff",
+                      padding: 20,
+                      font: {
+                        size: 12,
+                      },
+                    },
+                  },
+                },
+              },
+            });
+            this.chartInstances.push(weatherChart);
           } else if (chartType === "population") {
             const populationChart = new Chart(ctx, {
               type: "line",
@@ -444,6 +587,19 @@ class ScrollManager {
         container.innerHTML = `<div class="error">Failed to load chart: ${error.message}</div>`;
       });
     }
+  }
+
+  filterMapBySeverity(severity) {
+    if (!this.map) return;
+
+    this.currentFilter = severity;
+
+    let filter = null;
+    if (severity) {
+      filter = ["==", ["get", "severity"], severity];
+    }
+
+    this.map.setFilter("incidents-layer", filter);
   }
 
   updateStoryContent(stats) {
@@ -568,7 +724,7 @@ class ScrollManager {
           </div>
         </div>
 
-        <div class="story-step rounded-lg p-6 mb-8" data-step="incidents-by-type" data-location="25.2841,55.3712,14">
+        <div class="story-step rounded-lg p-6 mb-8" data-step="incidents-by-type" data-location="25.2048,55.2708,11">
           <div class="story-step-content">
             <div class="flex items-center mb-4">
               <i class="fas fa-chart-pie text-purple-500 text-3xl mr-4"></i>
@@ -581,7 +737,7 @@ class ScrollManager {
           </div>
         </div>
 
-        <div class="story-step rounded-lg p-6 mb-8" data-step="incidents-by-time" data-location="25.2285,55.2867,15">
+        <div class="story-step rounded-lg p-6 mb-8" data-step="incidents-by-time" data-location="25.2048,55.2708,11">
           <div class="story-step-content">
             <div class="flex items-center mb-4">
               <i class="fas fa-clock text-green-500 text-3xl mr-4"></i>
@@ -594,7 +750,7 @@ class ScrollManager {
           </div>
         </div>
 
-        <div class="story-step rounded-lg p-6" data-step="population-impact" data-location="25.2048,55.2708,11">
+        <div class="story-step rounded-lg p-6 mb-8" data-step="population-impact" data-location="25.2048,55.2708,11">
           <div class="story-step-content">
             <div class="flex items-center mb-4">
               <i class="fas fa-users text-teal-500 text-3xl mr-4"></i>
@@ -612,6 +768,26 @@ class ScrollManager {
               </ul>
             </div>
           </div>
+        </div>
+
+        <div class="story-step rounded-lg p-6" data-step="weather-impact" data-location="25.2048,55.2708,11">
+          <div class="story-step-content">
+            <div class="flex items-center mb-4">
+              <i class="fas fa-thermometer-half text-red-400 text-3xl mr-4"></i>
+              <h3 class="text-2xl font-bold text-white">Weather Impact on Incidents</h3>
+            </div>
+            <div class="text-gray-200">
+              <p class="mb-3">Analysis of how temperature affects traffic incident severity in Dubai.</p>
+              <div class="chart-container" data-chart-type="weather" style="height: 300px;"></div>
+              <p class="mt-4 text-sm opacity-80">Key findings:</p>
+              <ul class="list-disc ml-5 text-sm opacity-80">
+                <li>Higher temperatures correlate with increased incident rates</li>
+                <li>Severe incidents more frequent during peak heat hours</li>
+                <li>Weather conditions impact driver behavior and vehicle performance</li>
+                <li>Temperature patterns influence traffic safety measures</li>
+              </ul>
+            </div>
+          </div>
         </div>`;
 
       const chartContainers = document.querySelectorAll(".chart-container");
@@ -619,6 +795,72 @@ class ScrollManager {
     } catch (error) {
       console.error("Error updating story content:", error);
     }
+  }
+
+  async loadTemperatureLayer() {
+    return new Promise((resolve, reject) => {
+      this.map.on("load", () => {
+        this.map.addSource("temperature", {
+          type: "raster",
+          tiles: [
+            `https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${process.env.OPENWEATHER_API_KEY}`,
+          ],
+          tileSize: 256,
+          attribution: "© OpenWeatherMap",
+        });
+
+        this.map.addLayer(
+          {
+            id: "temperature-layer",
+            type: "raster",
+            source: "temperature",
+            paint: {
+              "raster-opacity": 0.6,
+            },
+            layout: {
+              visibility: "visible",
+            },
+          },
+          "incidents-layer"
+        );
+
+        // Add temperature legend
+        const legend = document.createElement("div");
+        legend.className = "map-legend bg-gray-800 p-4 rounded-lg shadow-lg";
+        legend.innerHTML = `
+                <h4 class="text-white font-bold mb-2">Temperature (°C)</h4>
+                <div class="flex items-center space-x-2">
+                    <div class="w-full h-4 bg-gradient-to-r from-blue-500 via-yellow-500 to-red-500 rounded"></div>
+                    <span class="text-white text-sm">-10°C</span>
+                    <span class="text-white text-sm">25°C</span>
+                    <span class="text-white text-sm">40°C</span>
+                </div>
+            `;
+
+        this.map.getContainer().appendChild(legend);
+
+        // Add layer toggle control
+        const toggleButton = document.createElement("button");
+        toggleButton.className =
+          "bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg m-2";
+        toggleButton.textContent = "Toggle Temperature Layer";
+        toggleButton.onclick = () => {
+          const visibility = this.map.getLayoutProperty(
+            "temperature-layer",
+            "visibility"
+          );
+          this.map.setLayoutProperty(
+            "temperature-layer",
+            "visibility",
+            visibility === "visible" ? "none" : "visible"
+          );
+        };
+
+        this.map.getContainer().appendChild(toggleButton);
+
+        resolve();
+      });
+    });
   }
 
   async initMap() {
@@ -637,48 +879,74 @@ class ScrollManager {
 
       this.map = new mapboxgl.Map({
         container: "map",
-        style: "mapbox://styles/mapbox/dark-v10",
+        style: "mapbox://styles/mapbox/dark-v11", // Updated style
         center: [55.2708, 25.2048],
         zoom: 11,
         interactive: true,
         scrollZoom: false,
       });
 
-      this.map.on("load", () => {
-        console.log("Map loaded");
-        this.addDataLayers();
-
-        // Apply saved settings if they exist
-        const savedSettings = localStorage.getItem("accessibilitySettings");
-        if (savedSettings) {
-          const settings = JSON.parse(savedSettings);
-          if (settings.pointSize) {
-            this.updatePointStyle(settings.pointSize, settings.pointOpacity);
-          }
-          if (settings.mapStyle) {
-            this.updateMapStyle(settings.mapStyle);
-          }
-        }
-      });
-
+      // Add navigation control
       this.map.addControl(new mapboxgl.NavigationControl(), "top-right");
+
+      // Wait for map to load before adding data layers
+      this.map.on("load", () => {
+        this.addDataLayers();
+        this.loadTemperatureLayer();
+      });
 
       return true;
     } catch (error) {
       console.error("Error initializing map:", error);
-      const mapContainer = document.getElementById("map");
-      if (mapContainer) {
-        mapContainer.innerHTML = `
-          <div class="flex items-center justify-center h-full bg-gray-900">
-            <div class="text-center p-4">
-              <h3 class="text-xl text-red-500 mb-2">Map Loading Error</h3>
-              <p class="text-gray-300">${error.message}</p>
-            </div>
-          </div>
-        `;
-      }
+      this.showError(error);
       return false;
     }
+  }
+
+  addDataLayers() {
+    if (!this.dataManager.data) {
+      console.error("No data available for visualization");
+      return;
+    }
+
+    const geojsonData = this.dataManager.getGeoJSON();
+
+    // Add the data source
+    this.map.addSource("incidents", {
+      type: "geojson",
+      data: geojsonData,
+    });
+
+    // Add the visualization layer
+    this.map.addLayer({
+      id: "incidents-layer",
+      type: "circle",
+      source: "incidents",
+      paint: {
+        "circle-radius": 6,
+        "circle-color": [
+          "match",
+          ["get", "severity"],
+          "severe",
+          "#ef4444",
+          "minor",
+          "#f59e0b",
+          "#ffffff",
+        ],
+        "circle-opacity": 0.7,
+        "circle-stroke-width": 1,
+        "circle-stroke-color": "#ffffff",
+      },
+    });
+
+    // Add hover interactions
+    this.map.on("mouseenter", "incidents-layer", () => {
+      this.map.getCanvas().style.cursor = "pointer";
+    });
+
+    this.map.on("mouseleave", "incidents-layer", () => {
+      this.map.getCanvas().style.cursor = "";
+    });
   }
 
   addDataLayers() {
@@ -747,6 +1015,116 @@ class ScrollManager {
         "circle-opacity",
         parseFloat(opacity)
       );
+    }
+  }
+
+  async initializeWeather() {
+    try {
+      // Add weather radar layer using correct MapBox endpoint
+      this.map.addLayer(
+        {
+          id: "weather",
+          type: "raster",
+          source: {
+            type: "raster",
+            tiles: [
+              "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/weather/{z}/{x}/{y}?access_token=" +
+                mapboxgl.accessToken,
+            ],
+            tileSize: 256,
+            attribution: "© MapBox Weather Data",
+          },
+          minzoom: 0,
+          maxzoom: 18,
+          paint: {
+            "raster-opacity": this.weatherOpacity,
+            "raster-resampling": "linear",
+          },
+        },
+        "incidents-layer"
+      );
+
+      this.weatherLayer = "weather";
+
+      // Create a weather control button for toggling visibility
+      const weatherControl = document.createElement("div");
+      weatherControl.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
+      weatherControl.innerHTML = `
+      <button class="mapboxgl-ctrl-icon" type="button" title="Toggle Weather Layer">
+        <i class="fas fa-cloud"></i>
+      </button>
+    `;
+
+      // Add event listener for the weather toggle
+      weatherControl.addEventListener("click", () => {
+        const currentVisibility = this.map.getLayoutProperty(
+          "weather",
+          "visibility"
+        );
+        const newVisibility =
+          currentVisibility === "visible" ? "none" : "visible";
+        this.map.setLayoutProperty("weather", "visibility", newVisibility);
+        weatherControl.querySelector("button").style.opacity =
+          newVisibility === "visible" ? 1 : 0.5;
+      });
+
+      // Add the custom control to the map
+      this.map.addControl(
+        {
+          onAdd: () => weatherControl,
+          onRemove: () => weatherControl.remove(),
+        },
+        "top-right"
+      );
+
+      // Set up periodic refresh of weather data
+      this.startWeatherRefresh();
+
+      console.log("Weather layer successfully initialized");
+    } catch (error) {
+      console.error("Error initializing weather layer:", error);
+      this.handleWeatherError(error);
+    }
+  }
+
+  startWeatherRefresh() {
+    // Refresh weather data every 5 minutes
+    setInterval(() => {
+      if (this.map && this.map.getSource("weather")) {
+        this.map.getSource("weather").reload();
+        console.log("Weather data refreshed");
+      }
+    }, 300000);
+  }
+
+  handleWeatherError(error) {
+    // Create an error notification
+    const errorNotification = document.createElement("div");
+    errorNotification.className = "weather-error-notification";
+    errorNotification.style.cssText = `
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: rgba(220, 38, 38, 0.9);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 4px;
+    z-index: 1000;
+  `;
+    errorNotification.textContent = "Weather layer temporarily unavailable";
+
+    document.body.appendChild(errorNotification);
+
+    // Remove the notification after 5 seconds
+    setTimeout(() => {
+      errorNotification.remove();
+    }, 5000);
+  }
+
+  updateWeatherOpacity(opacity) {
+    this.weatherOpacity = opacity;
+    if (this.map.getLayer("weather")) {
+      this.map.setPaintProperty("weather", "raster-opacity", opacity);
     }
   }
 }

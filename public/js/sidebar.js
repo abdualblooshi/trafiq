@@ -9,6 +9,76 @@ class Sidebar {
     this.isMobile = window.innerWidth < 1024;
     this.initializeSidebar();
     this.handleResize();
+
+    // Add theme toggle to settings section
+    const settingsContent = document.querySelector(".settings-content");
+    if (settingsContent) {
+      const themeToggle = document.createElement("div");
+      themeToggle.className =
+        "theme-toggle setting-group border-t border-gray-700 pt-4 mt-4";
+      themeToggle.innerHTML = `
+                <label class="flex items-center justify-between">
+                    <span class="text-sm font-medium">Theme</span>
+                    <button id="theme-toggle-btn" class="relative inline-flex items-center h-6 rounded-full w-11 bg-gray-600 transition-colors">
+                        <span class="sr-only">Toggle theme</span>
+                        <span class="flex items-center justify-center w-5 h-5 rounded-full bg-white transform translate-x-1 transition-transform dark:translate-x-5">
+                            <i class="fas fa-sun text-yellow-500 dark:hidden"></i>
+                            <i class="fas fa-moon text-blue-500 hidden dark:block"></i>
+                        </span>
+                    </button>
+                </label>
+                <p class="text-xs text-gray-400 mt-1">Switch between light and dark themes</p>
+            `;
+      settingsContent.appendChild(themeToggle);
+      this.initializeThemeToggle();
+    }
+  }
+
+  initializeThemeToggle() {
+    const themeToggleBtn = document.getElementById("theme-toggle-btn");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+
+    // Initialize theme based on saved preference or system preference
+    const savedTheme = localStorage.getItem("theme");
+    const initialTheme = savedTheme || (prefersDark.matches ? "dark" : "light");
+    this.setTheme(initialTheme);
+
+    themeToggleBtn.addEventListener("click", () => {
+      const currentTheme = document.documentElement.classList.contains("dark")
+        ? "dark"
+        : "light";
+      const newTheme = currentTheme === "light" ? "dark" : "light";
+      this.setTheme(newTheme);
+    });
+
+    // Listen for system theme changes
+    prefersDark.addEventListener("change", (e) => {
+      if (!localStorage.getItem("theme")) {
+        this.setTheme(e.matches ? "dark" : "light");
+      }
+    });
+  }
+
+  setTheme(theme) {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+
+    localStorage.setItem("theme", theme);
+    this.updateMapStyle(theme);
+  }
+
+  updateMapStyle(theme) {
+    const map = window.map; // Assuming the map instance is accessible
+    if (map) {
+      const style =
+        theme === "dark"
+          ? "mapbox://styles/mapbox/dark-v11"
+          : "mapbox://styles/mapbox/light-v11";
+      map.setStyle(style);
+    }
   }
 
   handleResize() {

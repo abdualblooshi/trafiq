@@ -154,14 +154,19 @@ class HeatmapManager {
   async initialize() {
     try {
       const result = await vegaEmbed("#visContainer", this.spec, {
-        actions: false, // Remove actions menu to save space
+        actions: false,
         theme: "dark",
+        width: "container", // This makes the visualization responsive
         config: {
+          autosize: {
+            type: "fit",
+            contains: "padding",
+          },
           background: null,
           axis: {
             labelColor: "#e5e7eb",
             titleColor: "#e5e7eb",
-            labelFontSize: 11, // Smaller font size
+            labelFontSize: 11,
             titleFontSize: 12,
           },
           legend: {
@@ -171,7 +176,7 @@ class HeatmapManager {
           },
           title: {
             color: "#e5e7eb",
-            fontSize: 14, // Smaller title
+            fontSize: 14,
           },
         },
       });

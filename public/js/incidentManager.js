@@ -26,15 +26,39 @@ document.addEventListener("DOMContentLoaded", async () => {
       title: {
         text: "Traffic Incidents (2023-2024)",
         anchor: "start",
-        fontSize: 24,
+        fontSize: 16,
         offset: 20,
-        color: "#333",
+        color: "#FFF",
         dx: 50,
+      },
+      config: {
+        background: "transparent",
+        axis: {
+          labelFont: "Arial",
+          titleFont: "Arial",
+          labelColor: "white",
+          titleColor: "white",
+        },
+        text: {
+          font: "Arial",
+          color: "white",
+        },
+        title: {
+          color: "white",
+        },
+        legend: {
+          labelColor: "white",
+          titleColor: "white",
+        },
+        animation: {
+          duration: 500,
+          easing: "ease-in-out",
+        },
       },
       signals: [
         { name: "step", value: 10 },
         { name: "offset", value: 20 },
-        { name: "width", update: "step * 55" },
+        { name: "width", update: "step * 80" },
         { name: "height", update: "step * 18" },
         {
           name: "scheme",
@@ -920,6 +944,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                       fontSize: { value: 20 },
                       fontWeight: { value: "bold" },
                       align: { value: "right" },
+                      fill: { value: "white" }, // Add this line
                     },
                   },
                 },
@@ -935,6 +960,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                       fontWeight: { value: "bold" },
                       align: { value: "left" },
                       opacity: { field: "showMonthLabel" },
+                      fill: { value: "white" }, // Add this line
                     },
                   },
                 },
@@ -1111,6 +1137,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                       fontWeight: { value: "bold" },
                       align: { value: "center" },
                       baseline: { value: "top" },
+                      fill: { value: "white" }, // Add this line
                     },
                   },
                 },
@@ -1124,6 +1151,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                       fontSize: { value: 16 },
                       align: { value: "center" },
                       baseline: { value: "top" },
+                      fill: { value: "white" }, // Add this line
                     },
                   },
                 },
@@ -1228,11 +1256,85 @@ document.addEventListener("DOMContentLoaded", async () => {
       },
     };
 
+    // Initialize statistics tracking
+    function initializeStatisticsTracking(view) {
+      view.addSignalListener("timer", () => {
+        updateStatistics(view);
+      });
+    }
+
+    function updateStatistics(view) {
+      const data = view.data("tree");
+      if (!data || !data.length) return;
+
+      const root = data[0];
+      let totalCount = 0;
+      let severeCount = 0;
+      let minorCount = 0;
+
+      // Calculate counts by traversing the tree
+      function traverse(node) {
+        if (node.size) {
+          totalCount += node.size;
+        }
+
+        if (node.name === "بليغ (Severe)") {
+          severeCount = node.children.reduce(
+            (sum, child) => sum + (child.size || 0),
+            0
+          );
+        } else if (node.name === "بسيط (Minor)") {
+          minorCount = node.children.reduce(
+            (sum, child) => sum + (child.size || 0),
+            0
+          );
+        }
+
+        if (node.children) {
+          node.children.forEach(traverse);
+        }
+      }
+
+      traverse(root);
+
+      // Update the display elements
+      document.getElementById("totalIncidents").textContent = totalCount;
+      document.getElementById("severeCount").textContent = severeCount;
+      document.getElementById("minorCount").textContent = minorCount;
+
+      // Update top incident types
+      const topTypes = data
+        .filter((d) => d.size && d.parent && d.parent !== "root")
+        .sort((a, b) => b.size - a.size)
+        .slice(0, 5);
+
+      const topTypesContainer = document.getElementById("topTypes");
+      topTypesContainer.innerHTML = "";
+
+      topTypes.forEach((type) => {
+        const div = document.createElement("div");
+        div.className = "flex justify-between items-center";
+        div.innerHTML = `
+          <span class="text-gray-300">${type.name}</span>
+          <span class="text-white font-bold">${type.size}</span>
+        `;
+        topTypesContainer.appendChild(div);
+      });
+    }
+
     // Embed the visualization
     vegaEmbed("#vegaLiteContainer", spec, {
       actions: true,
       theme: "dark",
-    }).catch(console.error);
+      config: {
+        background: "transparent",
+        style: { "guide-label": { fill: "white" } },
+      },
+    })
+      .then((result) => {
+        initializeStatisticsTracking(result.view);
+      })
+      .catch(console.error);
   } catch (error) {
     console.error("Error loading visualization:", error);
     document.getElementById("vegaLiteContainer").innerHTML =

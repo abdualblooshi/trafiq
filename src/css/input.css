@@ -285,3 +285,123 @@ body {
   background: rgba(17, 24, 39, 0.95);
   backdrop-filter: blur(4px);
 }
+
+/* Theme transition styles */
+.theme-toggle button {
+  transition: background-color 0.3s ease;
+}
+
+.theme-toggle button span {
+  transition: transform 0.3s ease;
+}
+
+/* Dark mode styles */
+:root {
+  --background-primary: #ffffff;
+  --background-secondary: #f3f4f6;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+}
+
+:root.dark {
+  --background-primary: #111827;
+  --background-secondary: #1f2937;
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+}
+
+/* Apply theme variables */
+body {
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+}
+
+.sidebar {
+  background-color: var(--background-secondary);
+}
+
+/* Add transition for theme changes */
+body,
+.sidebar,
+.modal,
+.card {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+/* Dark theme for inputs */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+textarea,
+select {
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--text-secondary);
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+textarea:focus,
+select:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Placeholder text color */
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Vega-Lite container styling */
+#vegaLiteContainer {
+  background-color: var(--background-primary);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.1),
+    0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  margin: 1rem 0;
+  width: 100%;
+  height: auto;
+  overflow: auto;
+}
+
+#vegaLiteContainer canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Dark theme adjustments for Vega-Lite */
+#vegaLiteContainer .vega-bind {
+  color: var(--text-primary);
+}
+
+#vegaLiteContainer .vega-bind-name {
+  color: var(--text-secondary);
+}
+
+#vegaLiteContainer canvas {
+  background-color: transparent !important;
+}
+
+#visContainer canvas {
+  width: 100% !important;
+  height: auto;
+  background-color: transparent !important;
+}
