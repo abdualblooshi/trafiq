@@ -285,3 +285,47 @@ body {
   background: rgba(17, 24, 39, 0.95);
   backdrop-filter: blur(4px);
 }
+
+/* Theme transition styles */
+.theme-toggle button {
+  transition: background-color 0.3s ease;
+}
+
+.theme-toggle button span {
+  transition: transform 0.3s ease;
+}
+
+/* Dark mode styles */
+:root {
+  --background-primary: #ffffff;
+  --background-secondary: #f3f4f6;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+}
+
+:root.dark {
+  --background-primary: #111827;
+  --background-secondary: #1f2937;
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+}
+
+/* Apply theme variables */
+body {
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+}
+
+.sidebar {
+  background-color: var(--background-secondary);
+}
+
+/* Add transition for theme changes */
+body,
+.sidebar,
+.modal,
+.card {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}

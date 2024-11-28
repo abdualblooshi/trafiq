@@ -51,6 +51,7 @@ app.get("/mapbox-token", (req, res) => {
   if (!mapboxToken) {
     return res.status(400).json({ error: "Mapbox token not configured" });
   }
+  res.set("Access-Control-Allow-Origin", "*");
   res.json({ token: mapboxToken });
 });
 
@@ -65,6 +66,58 @@ app.get("/api/weather", async (req, res) => {
     res.json(response.data);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// In server/server.js, add this route
+app.get("/weather-token", (req, res) => {
+  const weatherToken = process.env.OPENWEATHER_API_KEY;
+  if (!weatherToken) {
+    return res
+      .status(400)
+      .json({ error: "OpenWeatherMap token not configured" });
+  }
+  res.json({ token: weatherToken });
+});
+
+const UAE_GRID = [
+  { lat: 25.2048, lon: 55.2708 }, // Dubai
+  { lat: 24.4539, lon: 54.3773 }, // Abu Dhabi
+  { lat: 25.3463, lon: 55.4209 }, // Sharjah
+  { lat: 25.0742, lon: 55.1885 }, // Dubai Marina
+];
+
+app.get("/weather-data", async (req, res) => {
+  const weatherToken = process.env.OPENWEATHER_API_KEY;
+
+  if (!weatherToken) {
+    return res
+      .status(500)
+      .json({ error: "Weather service configuration error" });
+  }
+
+  try {
+    const weatherPromises = UAE_GRID.map((point) =>
+      axios.get("https://api.openweathermap.org/data/2.5/weather", {
+        params: {
+          lat: point.lat,
+          lon: point.lon,
+          appid: weatherToken,
+          units: "metric",
+        },
+      })
+    );
+
+    const responses = await Promise.all(weatherPromises);
+    const weatherData = responses.map((response) => response.data);
+
+    res.json(weatherData);
+  } catch (error) {
+    console.error("Weather data fetch error:", error);
+    res.status(500).json({
+      error: "Failed to fetch weather data",
+      details: error.message,
+    });
   }
 });
 
